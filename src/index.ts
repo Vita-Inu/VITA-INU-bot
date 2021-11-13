@@ -1,6 +1,8 @@
 import { HTTP_RPC } from '@vite/vitejs-http';
 import { WS_RPC } from '@vite/vitejs-ws';
 import { ViteAPI } from '@vite/vitejs';
+import { RPCResponse} from '@vite/vitejs/distSrc/utils/type';
+import { getCirculatingSupply } from './vite_functions';
 
 const fs = require('fs');                   // Loads the Filesystem library
 const Discord = require('discord.js');      // Loads the discord API library
@@ -12,7 +14,8 @@ client.botConfig.rootDir = __dirname; // Stores the running directory in the con
 client.aliases = new Discord.Collection()
 
 // Info for lookup
-const tti = Config.tti;	// TTI of token we're watching
+const tokenID = Config.tti;	// TTI of token we're watching
+const updateInverval = Config.interval;	// How often to update circulating supply (ms)
 const devWallet = Config.devWallet; 
 const viteNode = Config.viteNode;
 
@@ -39,11 +42,22 @@ client.on('ready', () => {
     // Log successful login
     console.log("VITA INU Bot Online as " + client.user.username + 
         " with prefix " + client.botConfig.prefix);
-    let statusMessage = "say " + client.botConfig.prefix + "help | Online";
-    // Set the client user's presence
-    client.user.setPresence({ activity: { name: statusMessage}, status: "online" })
-    .catch(console.error);
 });
+
+setInterval(async () => {
+	await updateCirculatingSupply();
+}, updateInverval);
+
+const updateCirculatingSupply = async () => {
+	// Get circulating supply for token ID
+	let circulatingSupply : number = await getCirculatingSupply(tokenID,devWallet).catch((res: RPCResponse) => {
+		let errorMsg = "Could not retrieve circulating supply for " + tokenID;
+		console.log(errorMsg, res);
+		throw res.error;
+	});
+	let chatMsg : string = "Circulating supply for " + tokenID + " is " + circulatingSupply.toLocaleString('en-GB', {minimumFractionDigits: 2}) ;
+  console.log("Circulating supply : " + circulatingSupply);
+}
 
 // Dynamically load commands from commands directory
 client.commands = new Discord.Collection();

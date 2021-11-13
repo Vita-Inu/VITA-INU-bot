@@ -1,5 +1,6 @@
 {
 	"token": "PUT DISCORD TOKEN HERE",
+	"interval" : 10000,
 	"prefix": "vinu!",
 	"viteNode" : "https://node.vite.net/gvite",
 	"tti" : "tti_3340701118e8a54d34b52355",
