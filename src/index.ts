@@ -1,33 +1,35 @@
 import { HTTP_RPC } from '@vite/vitejs-http';
+import { WS_RPC } from '@vite/vitejs-ws';
 import { ViteAPI } from '@vite/vitejs';
 
 const fs = require('fs');                   // Loads the Filesystem library
 const Discord = require('discord.js');      // Loads the discord API library
 const Config = require('../config.json');    // Loads the configuration values
 
-// Grab data from .env
-require('dotenv').config();
-
 const client = new Discord.Client(); // Initiates the client
 client.botConfig = Config; // Stores the config inside the client object so it's auto injected wherever we use the client
 client.botConfig.rootDir = __dirname; // Stores the running directory in the config so we don't have to traverse up directories.
 
-const cooldowns = new Discord.Collection(); // Creates an empty list for storing timeouts so people can't spam with commands
+// Info for lookup
+const tti = Config.tti;	// TTI of token we're watching
+const devWallet = Config.devWallet; 
+const viteNode = Config.viteNode;
 
-var RPC_NET = process.env.TESTNET;  // Default to TESTNET
-// Decide the RPC_NET value depending on what network bot is configued for
-if(client.botConfig.network == 'MAINNET') {
-    console.log("Loading MAINNET");
-    RPC_NET = process.env.MAINNET;
-} else if(client.botConfig.network == 'TESTNET') {
-    console.log("Loading TESTNET");
-    RPC_NET = process.env.TESTNET;
+// Determine whether to set up HTTP or WS
+var provider;
+if(viteNode.startsWith("http")) {
+	console.log("Loading " + client.botConfig.network + "  with http node " + viteNode);
+	provider = new HTTP_RPC(viteNode);
+} else if(viteNode.startsWith("ws")) {
+	console.log("Loading " + client.botConfig.network + "  with ws node " + viteNode);
+	provider = new WS_RPC(viteNode);
 } else {
-    console.log("Invalid network specified. Please check config.json.");
+	console.log("Invalid protocol for node: " + viteNode + ". Please add https:// or wss://");
+	process.exit(0);
 }
-// Set up HTTP RPC client and ViteClient
-export const httpProvider = new HTTP_RPC(RPC_NET);
-export var viteClient = new ViteAPI(httpProvider, () => {
+
+// Set up ViteClient API
+export var viteClient = new ViteAPI(provider, () => {
     console.log('Vite client successfully connected: ');
 });
 

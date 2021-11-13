@@ -2,4 +2,6 @@
 	"prefix": "v!",
 	"token": "YOUR TOKEN GOES HERE",
 	"network": "MAINNET"
+	"tti" : "tti_3340701118e8a54d34b52355",					// Example: VITE INU
+	"devWallet" : "vite_1b91ee2619368ee27857c8cc544bc72e92436ba8a029b984e9"	
 }
