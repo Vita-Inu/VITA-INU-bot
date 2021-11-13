@@ -44,6 +44,7 @@ client.on('ready', () => {
         " with prefix " + client.botConfig.prefix);
 });
 
+// Call update circuling supply every updateInterval ms
 setInterval(async () => {
 	await updateCirculatingSupply();
 }, updateInverval);
@@ -55,8 +56,11 @@ const updateCirculatingSupply = async () => {
 		console.log(errorMsg, res);
 		throw res.error;
 	});
-	let chatMsg : string = "Circulating supply for " + tokenID + " is " + circulatingSupply.toLocaleString('en-GB', {minimumFractionDigits: 2}) ;
-  console.log("Circulating supply : " + circulatingSupply);
+	let statusMessage : string = circulatingSupply.toLocaleString('en-GB', {minimumFractionDigits: 2}); 
+	console.log("Updating status to \"" + statusMessage + "\"");
+	// Set the client user's presence
+	client.user.setPresence({ activity: { name: statusMessage, type: 'WATCHING' }, status: "online" })
+	.catch(console.error);
 }
 
 // Dynamically load commands from commands directory
