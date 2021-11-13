@@ -2,22 +2,27 @@ import { RPCResponse} from '@vite/vitejs/distSrc/utils/type';
 import { getLogger } from '../logger';
 import { getCirculatingSupply } from '../vite_functions';
 
-const Config = require('../../config.json');    // Loads the configuration values
-
 const logger = getLogger();
+
+const Config = require('../../config.json');    // Loads the configuration values
 const devWallet = Config.devWallet; 
+const vitaInuTTI = Config.tti;
 
 module.exports = {
 	name: 'circulating',
 	description: 'Display circulating supply for tokenID',
 	execute(message, args) {    
       let prefix = message.client.botConfig.prefix; 
+      // Use Vite Inu as default
+      let tokenID = vitaInuTTI;
       // User passes in address
-      if(args.length != 1) {
-          message.channel.send("Usage: " + prefix + "circulating <tokenID>");
-          return;
-      } 
-      let tokenID = args[0];
+      if(args.length == 1) {
+        // Use argument passed if
+        tokenID = args[0];
+      } else if(args.length > 1) {
+        message.channel.send("Usage: " + prefix + "circulating [tokenID]");
+        return;
+      }
       console.log("Looking up circulalting supply for tokenID: " + tokenID);
       // Get circulating supply for tokenID
       showCirculatingSupply(message, tokenID)
