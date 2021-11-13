@@ -10,7 +10,7 @@ const vitaInuTTI = Config.tti;
 
 module.exports = {
 	name: 'circulating',
-  aliases: ["cir"],
+  aliases: ["c","cir"],
 	description: 'Display circulating supply for tokenID',
 	execute(message, args) {    
       let prefix = message.client.botConfig.prefix; 
