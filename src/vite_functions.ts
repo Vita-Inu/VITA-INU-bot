@@ -60,3 +60,52 @@ export async function getAccountBalance(address: string, tokenID: string)  {
         console.error(err.stack);
     }
 }
+
+// Get total supply of tokenID
+export async function getTotalSupply(tokenID: string)  {
+    // Get token info for specified tokenID
+    const tokenInfo = await getTokenInformation(tokenID).catch((res: RPCResponse) => {
+        let errorMsg = "Could not retrieve token info for \"" + tokenID + "\" : " + res.error.message;
+        logger.error(errorMsg);
+        console.log(errorMsg);
+        throw res.error;
+    });
+    if(tokenInfo == null) {
+        console.log("No token information available for " + tokenID);
+        return -1;
+    } else {
+        // Return total supply
+        return tokenInfo.totalSupply;
+    }
+}
+
+// Get circulating supply for tokenID. Need to provide dev wallet address.
+// Circulating supply = total supply - dev wallet balance
+export async function getCirculatingSupply(devWallet: string, tokenID: string)  {
+    try {
+        // Get token info for specified tokenID
+        var totalSupply;
+        var devWalletBalance;
+        const tokenInfo = await getTokenInformation(tokenID).catch((res: RPCResponse) => {
+            let errorMsg = "Could not retrieve token info for \"" + tokenID + "\" : " + res.error.message;
+            logger.error(errorMsg);
+            console.log(errorMsg);
+            throw res.error;
+        });
+        if(tokenInfo == null) {
+            console.log("No token information available for " + tokenID);
+            return -1;
+        } 
+        // Get total supply
+        totalSupply = tokenInfo.totalSupply;
+        // Get balance of devWallet
+        devWalletBalance = getAccountBalance(devWallet, tokenID);
+        // Return circulating supply = total supply - dev wallet
+        return totalSupply - devWalletBalance;
+    } catch(error) {
+        const errorMsg = "Error getting circulating supply for " + devWallet + " token " + tokenID + " : " + error;
+        logger.error(errorMsg);
+        console.error(errorMsg);
+        throw error;
+    }
+}
