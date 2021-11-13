@@ -1,7 +1,8 @@
 import { RPCResponse, TokenInfo } from '@vite/vitejs/distSrc/utils/type';
+import { convertRaw } from './common';
 import { viteClient } from './index';
 import { getLogger } from './logger';
-import { AccountInfo, BalanceInfo, rawToToken} from './viteTypes';
+import { AccountInfo, BalanceInfo} from './viteTypes';
 
 const logger = getLogger();
 
@@ -50,8 +51,11 @@ export async function getAccountBalance(address: string, tokenID: string)  {
             // Grab balanceInfoMap
             balanceInfoMap = accountInfo.balanceInfoMap;
             // Find match tokenID
-            let balanceInfo = balanceInfoMap[tokenID];
-            return balanceInfo.balance;
+            let balanceInfo : BalanceInfo = balanceInfoMap[tokenID];
+            let tokenInfo : TokenInfo = balanceInfo.tokenInfo;
+            let decimals = parseInt(tokenInfo.decimals);
+            let balance = parseFloat(balanceInfo.balance);
+            return convertRaw(balance, decimals);
         }
     } catch(err) {
         console.error("Error displaying balance info for " + address + " : " + err);
@@ -73,29 +77,27 @@ export async function getTotalSupply(tokenID: string)  {
         return -1;
     } else {
         // Return total supply converted from raw
-        return rawToToken(tokenInfo.totalSupply, tokenInfo.decimals);
+        let totalSupply : number = parseInt(tokenInfo.totalSupply);
+        let decimals : number = parseInt(tokenInfo.decimals);
+        return convertRaw(totalSupply, decimals);
     }
 }
 
 // Get circulating supply for tokenID. Need to provide dev wallet address.
 // Circulating supply = total supply - dev wallet balance
-export async function getCirculatingSupply(devWallet: string, tokenID: string)  {
+export async function getCirculatingSupply(tokenID: string, devWallet: string )  {
     try {
         // Get token info for specified tokenID
         var totalSupply;
         var devWalletBalance;
-        const tokenInfo = await getTokenInformation(tokenID).catch((res: RPCResponse) => {
-            let errorMsg = "Could not retrieve token info for \"" + tokenID + "\" : " + res.error.message;
+        console.log("Retrieving token info for " + tokenID)
+        // Get total supply for token ID
+        let totalSupply = await getTotalSupply(tokenID).catch((res: RPCResponse) => {
+            let errorMsg = "Could not retrieve total supply for " + tokenID;
             logger.error(errorMsg);
-            console.log(errorMsg);
+            console.log(errorMsg, res);
             throw res.error;
         });
-        if(tokenInfo == null) {
-            console.log("No token information available for " + tokenID);
-            return -1;
-        } 
-        // Get total supply
-        totalSupply = tokenInfo.totalSupply;
         // Get balance of devWallet
         devWalletBalance = getAccountBalance(devWallet, tokenID);
         // Return circulating supply = total supply - dev wallet
