@@ -31,25 +31,20 @@ export async function getAccountInformation(address: string)  {
 }
 
 export async function getAccountBalance(address: string, tokenID: string)  {
-    
-    let accountInfo: AccountInfo;
-    let balanceInfoMap : ReadonlyMap<String, BalanceInfo>;
-
     // Get account info for address
-    accountInfo = await getAccountInformation(address).catch((res: RPCResponse) => {
+    let accountInfo : AccountInfo = await getAccountInformation(address).catch((res: RPCResponse) => {
         let errorMsg = "Could not retrieve account balances for " + address;
         logger.error(errorMsg);
         console.log(errorMsg, res);
         throw res.error;
     });
-
     try {
         if(accountInfo == null) {
             console.log("No information for account " + address);
             return -1;
         } else {
             // Grab balanceInfoMap
-            balanceInfoMap = accountInfo.balanceInfoMap;
+            let balanceInfoMap : ReadonlyMap<String, BalanceInfo> = accountInfo.balanceInfoMap;
             // Find match tokenID
             let balanceInfo : BalanceInfo = balanceInfoMap[tokenID];
             let tokenInfo : TokenInfo = balanceInfo.tokenInfo;
@@ -66,7 +61,7 @@ export async function getAccountBalance(address: string, tokenID: string)  {
 // Get total supply of tokenID
 export async function getTotalSupply(tokenID: string)  {
     // Get token info for specified tokenID
-    const tokenInfo = await getTokenInformation(tokenID).catch((res: RPCResponse) => {
+    const tokenInfo : TokenInfo = await getTokenInformation(tokenID).catch((res: RPCResponse) => {
         let errorMsg = "Could not retrieve token info for \"" + tokenID + "\" : " + res.error.message;
         logger.error(errorMsg);
         console.log(errorMsg);
@@ -88,18 +83,23 @@ export async function getTotalSupply(tokenID: string)  {
 export async function getCirculatingSupply(tokenID: string, devWallet: string )  {
     try {
         // Get token info for specified tokenID
-        var totalSupply;
-        var devWalletBalance;
         console.log("Retrieving token info for " + tokenID)
         // Get total supply for token ID
-        let totalSupply = await getTotalSupply(tokenID).catch((res: RPCResponse) => {
+        let totalSupply : number = await getTotalSupply(tokenID).catch((res: RPCResponse) => {
             let errorMsg = "Could not retrieve total supply for " + tokenID;
             logger.error(errorMsg);
             console.log(errorMsg, res);
             throw res.error;
         });
+        console.log("Total supply for " + tokenID + " is " + totalSupply);
         // Get balance of devWallet
-        devWalletBalance = getAccountBalance(devWallet, tokenID);
+        let devWalletBalance : number = await getAccountBalance(devWallet, tokenID).catch((res: RPCResponse) => {
+            let errorMsg = "Could not retrieve account balance for " + devWallet + " token " + tokenID + " : " + res.error.message;
+            logger.error(errorMsg);
+            console.log(errorMsg);
+            throw res.error;
+        });
+        console.log("Dev wallet balance for " + tokenID + " is " + devWalletBalance);
         // Return circulating supply = total supply - dev wallet
         return totalSupply - devWalletBalance;
     } catch(error) {

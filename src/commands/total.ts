@@ -28,16 +28,14 @@ module.exports = {
 };
 
 const showTotalSupply = async (message, tokenID : string) => {
-
   // Get total supply for token ID
-  let totalSupply = await getTotalSupply(tokenID).catch((res: RPCResponse) => {
+  let totalSupply : number = await getTotalSupply(tokenID).catch((res: RPCResponse) => {
     let errorMsg = "Could not retrieve total supply for " + tokenID;
     logger.error(errorMsg);
     console.log(errorMsg, res);
     throw res.error;
   });
-
+  // Send to chat
   let chatMsg : string = "Total supply for " + tokenID + " is " + totalSupply.toLocaleString('en-GB', {minimumFractionDigits: 2}) ;
   message.channel.send(chatMsg);
-
 }
