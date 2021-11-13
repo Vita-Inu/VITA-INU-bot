@@ -1,9 +1,7 @@
 import { RPCResponse, TokenInfo } from '@vite/vitejs/distSrc/utils/type';
-import * as vite from "@vite/vitejs";
-import { convertRaw } from 'common';
 import { viteClient } from './index';
 import { getLogger } from './logger';
-import { AccountInfo, BalanceInfo} from 'viteTypes';
+import { AccountInfo, BalanceInfo, rawToToken} from './viteTypes';
 
 const logger = getLogger();
 
@@ -74,8 +72,8 @@ export async function getTotalSupply(tokenID: string)  {
         console.log("No token information available for " + tokenID);
         return -1;
     } else {
-        // Return total supply
-        return tokenInfo.totalSupply;
+        // Return total supply converted from raw
+        return rawToToken(tokenInfo.totalSupply, tokenInfo.decimals);
     }
 }
 
