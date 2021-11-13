@@ -1,0 +1,25 @@
+{
+  "name": "vita_inu_bot",
+  "version": "1.0.0",
+  "description": "VITA INU Discord bot",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:prod": "tsc && pm2 start dist/index.js",
+    "start:dev": "tsc && node dist/index.js"
+  },
+  "dependencies": {
+    "@vite/vitejs": "^2.3.14",
+    "@vite/vitejs-http": "^2.3.14",
+    "discord.js": "^12.5.3",
+    "dotenv": "^10.0.0",
+    "luxon": "^2.0.2",
+    "vitejs-notthomiz": "^2.3.15",
+    "winston": "^3.3.3"
+  },
+  "devDependencies": {
+    "ts-node": "^10.1.0",
+    "typescript": "^4.3.4"
+  }
+}

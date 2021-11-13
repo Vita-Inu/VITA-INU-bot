@@ -1,0 +1,10 @@
+.env
+config.json
+logs*
+node_modules
+*.map
+commands/*.js
+.env
+nohup.out
+*.code-workspace
+dist
