@@ -12,6 +12,7 @@
   "dependencies": {
     "@vite/vitejs": "^2.3.14",
     "@vite/vitejs-http": "^2.3.14",
+    "@vite/vitejs-ws": "^2.3.16",
     "discord.js": "^12.5.3",
     "dotenv": "^10.0.0",
     "luxon": "^2.0.2",
