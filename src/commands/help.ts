@@ -4,8 +4,7 @@ const Discord = require('discord.js');
 module.exports = {
     name: 'help',
     description: 'Display list of commands',
-    aliases: ['commands'],
-    usage: '[command name]',
+    aliases: ['h'],
     cooldown: 5,
     execute(message, args) {
         if (!args.length) {

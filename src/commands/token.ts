@@ -8,6 +8,7 @@ const logger = getLogger();
 
 module.exports = {
 	name: 'token',
+    aliases: ["tok"],
 	description: 'Display token information for specified token ID',
 	execute(message, args) {     
         // User can pass in optional SBP Name

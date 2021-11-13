@@ -10,6 +10,7 @@ const tokenID : string = Config.tti;
 
 module.exports = {
 	name: 'balance',
+    aliases: ["bal","b"],
 	description: 'Display Vite Inu balance for specified address',
 	execute(message, args) {    
         let prefix = message.client.botConfig.prefix; 

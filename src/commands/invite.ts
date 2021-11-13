@@ -7,6 +7,7 @@ const PERMISSIONS = process.env.PERMISSIONS || "198656";
 
 module.exports = {
 	name: 'invite',
+    aliases: ["inv","i"],
 	description: 'Generate invite URL for Discord',
 	execute(message, args) {
         if(CLIENT_ID == '0') {

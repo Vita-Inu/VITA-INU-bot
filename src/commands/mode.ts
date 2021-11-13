@@ -6,6 +6,7 @@ const logger = getLogger();
 
 module.exports = {
 	name: 'mode',
+    aliases: ["m"],
 	description: 'Set which network to connect to',
 	execute(message, args) {
         const fs = require('fs');                   // Loads the Filesystem library

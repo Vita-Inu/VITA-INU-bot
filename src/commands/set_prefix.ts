@@ -1,5 +1,6 @@
 module.exports = {
 	name: 'set_prefix',
+    aliases: ["setp","prefix"],
 	description: 'Set the bot prefix',
 	execute(message, args) {
         const fs = require('fs');                   // Loads the Filesystem library

@@ -5,11 +5,11 @@ import { getTotalSupply } from '../vite_functions';
 const logger = getLogger();
 
 const Config = require('../../config.json');    // Loads the configuration values
-const devWallet = Config.devWallet; 
 const vitaInuTTI = Config.tti;
 
 module.exports = {
 	name: 'total',
+  aliases: ["ttl","t"],
 	description: 'Display total supply for tokenID',
 	execute(message, args) {    
       let prefix = message.client.botConfig.prefix; 
