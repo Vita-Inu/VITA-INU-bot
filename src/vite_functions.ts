@@ -6,6 +6,10 @@ import { AccountInfo, BalanceInfo} from './viteTypes';
 
 const logger = getLogger();
 
+// TEMPORARY: To get circulating supply remove 2nd biggest wallet too
+// Circulating Supply = Total Supply - Dev Wallet - vite_bff94cf2d417548492d0af26d1f2907992c32672a013370150
+const tempWallet = "vite_bff94cf2d417548492d0af26d1f2907992c32672a013370150";
+
 export async function getTokenInformation(tokenID: string)  {
     try {
         const tokenInfo: TokenInfo = await viteClient.request('contract_getTokenInfoById', tokenID);
@@ -100,8 +104,18 @@ export async function getCirculatingSupply(tokenID: string, devWallet: string ) 
             throw res.error;
         });
         console.log("Dev wallet balance for " + tokenID + " is " + devWalletBalance);
+        // ******************************************* REMOVE LATER ********************************
+        // Get balance of tempWallet
+        let tempWalletBalance : number = await getAccountBalance(tempWallet, tokenID).catch((res: RPCResponse) => {
+            let errorMsg = "Could not retrieve account balance for " + tempWallet + " token " + tokenID + " : " + res.error.message;
+            logger.error(errorMsg);
+            console.log(errorMsg);
+            throw res.error;
+        });
+        console.log("Temp wallet balance for " + tokenID + " is " + tempWalletBalance);
+        // ******************************************* REMOVE LATER ********************************
         // Return circulating supply = total supply - dev wallet
-        return totalSupply - devWalletBalance;
+        return totalSupply - devWalletBalance - tempWalletBalance;
     } catch(error) {
         const errorMsg = "Error getting circulating supply for " + devWallet + " token " + tokenID + " : " + error;
         logger.error(errorMsg);
