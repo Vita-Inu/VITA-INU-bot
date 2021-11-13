@@ -9,22 +9,22 @@ module.exports = {
 	name: 'total',
 	description: 'Display total circulating supply for tokenID',
 	execute(message, args) {    
-        let prefix = message.client.botConfig.prefix; 
-        // User passes in address
-        if(args.length != 1) {
-            message.channel.send("Usage: " + prefix + "total <tokenID>");
-            return;
-        } 
-        let tokenID = args[0];
-        console.log("Looking up total supply for tokenID: " + tokenID);
-        // Get total supply for tokenID
-        showTotalSupply(message, tokenID)
-        .catch(error => {
-          let errorMsg : string = "Error while total supply for " + tokenID + " :" + error;
-          message.channel.send(errorMsg);
-          console.error(errorMsg);
-          logger.error(errorMsg);
-        });
+      let prefix = message.client.botConfig.prefix; 
+      // User passes in address
+      if(args.length != 1) {
+          message.channel.send("Usage: " + prefix + "total <tokenID>");
+          return;
+      } 
+      let tokenID = args[0];
+      console.log("Looking up total supply for tokenID: " + tokenID);
+      // Get total supply for tokenID
+      showTotalSupply(message, tokenID)
+      .catch(error => {
+        let errorMsg : string = "Error while total supply for " + tokenID + " :" + error;
+        message.channel.send(errorMsg);
+        console.error(errorMsg);
+        logger.error(errorMsg);
+      });
 	},
 };
 
@@ -38,7 +38,7 @@ const showTotalSupply = async (message, tokenID : string) => {
     throw res.error;
   });
 
-  let chatMsg : string = "Total supply for " + tokenID + " is " + totalSupply;
+  let chatMsg : string = "Total supply for " + tokenID + " is " + totalSupply.toLocaleString('en-GB', {minimumFractionDigits: 2}) ;
   message.channel.send(chatMsg);
 
 }
