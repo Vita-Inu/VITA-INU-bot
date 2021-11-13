@@ -10,10 +10,24 @@ const logger = getLogger();
 // Circulating Supply = Total Supply - Dev Wallet - vite_bff94cf2d417548492d0af26d1f2907992c32672a013370150
 const tempWallet = "vite_bff94cf2d417548492d0af26d1f2907992c32672a013370150";
 
+// Get TokenInfo for given tokenID
 export async function getTokenInformation(tokenID: string)  {
     try {
         const tokenInfo: TokenInfo = await viteClient.request('contract_getTokenInfoById', tokenID);
         return tokenInfo;
+    } catch(error) {
+        const errorMsg = "Error while calling contract_getTokenInfoById \"" + tokenID + "\" : " + error;
+        logger.error(errorMsg);
+        console.error(errorMsg);
+        throw error;
+    }
+}
+
+// Get token name for given tokenID
+export async function getTokenName(tokenID: string)  {
+    try {
+        const tokenInfo: TokenInfo = await viteClient.request('contract_getTokenInfoById', tokenID);
+        return tokenInfo.tokenName;
     } catch(error) {
         const errorMsg = "Error while calling contract_getTokenInfoById \"" + tokenID + "\" : " + error;
         logger.error(errorMsg);

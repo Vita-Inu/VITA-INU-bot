@@ -18,6 +18,7 @@ const tokenID = Config.tti;	// TTI of token we're watching
 const updateInverval = Config.interval;	// How often to update circulating supply (ms)
 const devWallet = Config.devWallet; 
 const viteNode = Config.viteNode;
+export var tokenName : string = "VINU";
 
 // Determine whether to set up HTTP or WS
 var provider;

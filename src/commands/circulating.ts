@@ -1,6 +1,7 @@
 import { RPCResponse} from '@vite/vitejs/distSrc/utils/type';
 import { getLogger } from '../logger';
-import { getCirculatingSupply } from '../vite_functions';
+import { getCirculatingSupply, getTotalSupply } from '../vite_functions';
+import { tokenName  } from '../index';
 
 const logger = getLogger();
 
@@ -36,6 +37,7 @@ module.exports = {
 	},
 };
 
+// TODO: Cache values that are used repeatedly to make faster ? 
 const showCirculatingSupply = async (message, tokenID : string) => {
   // Get circulating supply for token ID
   let circulatingSupply : number = await getCirculatingSupply(tokenID,devWallet).catch((res: RPCResponse) => {
@@ -44,6 +46,21 @@ const showCirculatingSupply = async (message, tokenID : string) => {
     console.log(errorMsg, res);
     throw res.error;
   });
-  let chatMsg : string = "Circulating supply for " + tokenID + " is " + circulatingSupply.toLocaleString('en-GB', {minimumFractionDigits: 2}) ;
+  // Get total supply for token ID
+  let totalSupply : number = await getTotalSupply(tokenID).catch((res: RPCResponse) => {
+    let errorMsg = "Could not retrieve total supply for " + tokenID;
+    logger.error(errorMsg);
+    console.log(errorMsg, res);
+    throw res.error;
+  });
+  // Use Big because JS sucks at floating point math
+  // Calculate percentage of circulating out of total
+  let percentage : number = ( circulatingSupply / totalSupply ) * 100;
+  console.log("Circulate : " + circulatingSupply);
+  console.log("Total: " + totalSupply);
+  console.log("Percentage: " + percentage);
+  
+  let chatMsg : string = "Circulating supply for " + tokenName + " is " + 
+    circulatingSupply.toLocaleString('en-GB', {minimumFractionDigits: 2}) + " [" + percentage.toFixed(2) + "%]";
   message.channel.send(chatMsg);
 }
