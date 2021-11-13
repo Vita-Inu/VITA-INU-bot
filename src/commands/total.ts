@@ -1,13 +1,12 @@
-import { RPCResponse, TokenInfo } from '@vite/vitejs/distSrc/utils/type';
+import { RPCResponse} from '@vite/vitejs/distSrc/utils/type';
 import { getLogger } from '../logger';
-import { convertRaw } from '../common';
 import { getTotalSupply } from '../vite_functions';
 
 const logger = getLogger();
 
 module.exports = {
 	name: 'total',
-	description: 'Display total circulating supply for tokenID',
+	description: 'Display total supply for tokenID',
 	execute(message, args) {    
       let prefix = message.client.botConfig.prefix; 
       // User passes in address
@@ -20,7 +19,7 @@ module.exports = {
       // Get total supply for tokenID
       showTotalSupply(message, tokenID)
       .catch(error => {
-        let errorMsg : string = "Error while total supply for " + tokenID + " :" + error;
+        let errorMsg : string = "Error while looking up total supply for " + tokenID + " :" + error;
         message.channel.send(errorMsg);
         console.error(errorMsg);
         logger.error(errorMsg);
