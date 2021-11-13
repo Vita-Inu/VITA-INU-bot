@@ -6,6 +6,9 @@ import { getTokenInformation } from '../vite_functions';
 
 const logger = getLogger();
 
+const Config = require('../../config.json');    // Loads the configuration values
+const vitaInuTTI : string = Config.tti;
+
 module.exports = {
 	name: 'token',
     aliases: ["tok"],
@@ -13,17 +16,19 @@ module.exports = {
 	execute(message, args) {     
         // User can pass in optional SBP Name
         let prefix = message.client.botConfig.prefix; 
-        let tokenID = "";
+        // Use Vite Inu as default
+        let tokenID = vitaInuTTI;
         // User passes in address
-        if(args.length != 1) {
-            message.channel.send("Usage: " + prefix + "token <tokenID>");
-            return;
-        } else {
+        if(args.length == 1) {
+            // Use argument passed if
             tokenID = args[0];
-        }
-        // Validate token ID
-        if(!vite.utils.isValidTokenId(tokenID)) {
-            message.channel.send("Invaid token ID \"" + tokenID + "\"");
+             // Validate token ID
+            if(!vite.utils.isValidTokenId(tokenID)) {
+                message.channel.send("Invaid token ID \"" + tokenID + "\"");
+                return;
+            }
+        } else if(args.length > 1) {
+            message.channel.send("Usage: " + prefix + "total [tokenID]");
             return;
         }
         // Get token info for tokenID
@@ -38,9 +43,7 @@ module.exports = {
 };
 
 const showTokenInformation = async (message, tokenID: string) => {
-
     let tokenInfo: TokenInfo;
-
     // Get token info for specified tokenID
     tokenInfo = await getTokenInformation(tokenID).catch((res: RPCResponse) => {
         let errorMsg = "Could not retrieve token info for \"" + tokenID + "\" : " + res.error.message;
@@ -48,7 +51,7 @@ const showTokenInformation = async (message, tokenID: string) => {
         console.log(errorMsg);
         throw res.error;
     });
-
+    // Show token summary
     let chatMessage = "";
     if(tokenInfo == null) {
         chatMessage = "No token information available for " + tokenID;
