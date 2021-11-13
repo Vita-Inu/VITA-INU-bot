@@ -1,15 +1,16 @@
-import { RPCResponse, TokenInfo } from '@vite/vitejs/distSrc/utils/type';
+import { RPCResponse} from '@vite/vitejs/distSrc/utils/type';
 import * as vite from "@vite/vitejs"
-import { AccountInfo, BalanceInfo} from '../viteTypes';
-import { viteClient } from '../index';
 import { getLogger } from '../logger';
-import { convertRaw } from '../common';
+import { getAccountBalance } from '../vite_functions';
 
 const logger = getLogger();
 
+const Config = require('../../config.json');    // Loads the configuration values
+const tokenID : string = Config.tti;
+
 module.exports = {
 	name: 'balance',
-	description: 'Display account balances for specified address',
+	description: 'Display Vite Inu balance for specified address',
 	execute(message, args) {    
         let prefix = message.client.botConfig.prefix; 
         let address = "";
@@ -27,7 +28,7 @@ module.exports = {
         }
         console.log("Looking up balance info for address: " + address);
         // Get account info for address
-        showAccountInformation(message, address)
+        showAccountBalance(message, address)
         .catch(error => {
             let errorMsg : string = "Error while grabbing balances for " + address + " :" + error;
             message.channel.send(errorMsg);
@@ -37,47 +38,15 @@ module.exports = {
 	},
 };
 
-const getAccountInformation= async (address: string) => {
-    const accountInfo: AccountInfo = await viteClient.request('ledger_getAccountInfoByAddress', address);
-    return accountInfo;
-};
-
-const showAccountInformation = async (message, address: string) => {
-
-    let accountInfo: AccountInfo;
-    let balanceInfoMap : ReadonlyMap<String, BalanceInfo>;
-
-    // Get account info for address
-    accountInfo = await getAccountInformation(address).catch((res: RPCResponse) => {
-        let errorMsg = "Could not retrieve account balances for " + address;
+const showAccountBalance = async (message, address: string) => {
+    // Get balance of devWallet
+    let balance : number = await getAccountBalance(address, tokenID).catch((res: RPCResponse) => {
+        let errorMsg = "Could not retrieve account balance for " + address + " token " + tokenID + " : " + res.error.message;
         logger.error(errorMsg);
-        console.log(errorMsg, res);
+        console.log(errorMsg);
         throw res.error;
     });
-
-    try {
-        let chatMessage = "";
-        if(accountInfo == null) {
-            chatMessage = "No information for account " + address;
-        } else {
-            chatMessage = "**Address:** " + accountInfo.address + "\n"
-            balanceInfoMap = accountInfo.balanceInfoMap;
-            for(const tokenID in balanceInfoMap) {
-                let balanceInfo : BalanceInfo = balanceInfoMap[tokenID];
-                let tokenInfo : TokenInfo = balanceInfo.tokenInfo;
-                let decimals = parseInt(tokenInfo.decimals);
-                let balance = parseFloat(balanceInfo.balance);
-                let readableBalance = convertRaw(balance, decimals);
-                chatMessage += "**" + tokenInfo.tokenSymbol + ":** " + 
-                    readableBalance.toLocaleString(undefined, {minimumFractionDigits: 2}) + "\n";
-            }
-        }
-        // Send response to chat
-        logger.info(chatMessage);
-        message.channel.send(chatMessage);
-    } catch(err) {
-        console.error("Error displaying balance info for " + address + " : " + err);
-        console.error(err.stack);
-    }
-
+    // Send to chat
+    let chatMsg : string =  balance.toLocaleString('en-GB', {minimumFractionDigits: 2}) + " VITA";
+    message.channel.send(chatMsg);
 }
