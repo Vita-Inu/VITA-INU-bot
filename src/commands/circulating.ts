@@ -1,7 +1,6 @@
 import { RPCResponse} from '@vite/vitejs/distSrc/utils/type';
 import { getLogger } from '../logger';
-import { getCirculatingSupply, getTotalSupply } from '../vite_functions';
-import { tokenName  } from '../index';
+import { getCirculatingSupply, getTokenName, getTotalSupply } from '../vite_functions';
 
 const logger = getLogger();
 
@@ -53,13 +52,19 @@ const showCirculatingSupply = async (message, tokenID : string) => {
     console.log(errorMsg, res);
     throw res.error;
   });
-  // Use Big because JS sucks at floating point math
-  // Calculate percentage of circulating out of total
+  // Look up token name for easier readability
+  let tokenName = await getTokenName(tokenID).catch((res: RPCResponse) => {
+    let errorMsg = "Could not get token name for " + tokenID;
+    logger.error(errorMsg, res);
+    console.log(res);
+  });
+  // Calculate percentage of circulating out of total 
+  // Might need to look into special lib cuz JS sucks at floating points
   let percentage : number = ( circulatingSupply / totalSupply ) * 100;
   console.log("Circulate : " + circulatingSupply);
   console.log("Total: " + totalSupply);
   console.log("Percentage: " + percentage);
-  
+  // Send info to chat
   let chatMsg : string = "Circulating supply for " + tokenName + " is " + 
     circulatingSupply.toLocaleString('en-GB', {minimumFractionDigits: 2}) + " [" + percentage.toFixed(2) + "%]";
   message.channel.send(chatMsg);
