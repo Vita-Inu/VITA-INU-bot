@@ -2,7 +2,7 @@ import { HTTP_RPC } from '@vite/vitejs-http';
 import { WS_RPC } from '@vite/vitejs-ws';
 import { ViteAPI } from '@vite/vitejs';
 import { RPCResponse} from '@vite/vitejs/distSrc/utils/type';
-import { getCirculatingSupply } from './vite_functions';
+import { getCirculatingSupply, getTotalSupply } from './vite_functions';
 import { convertToBorks } from './common';
 
 const fs = require('fs');                   // Loads the Filesystem library
@@ -57,14 +57,24 @@ const updateCirculatingSupply = async () => {
 		console.log(errorMsg, res);
 		throw res.error;
 	});
+	// Get total supply for token ID
+	let totalSupply : number = await getTotalSupply(tokenID).catch((res: RPCResponse) => {
+		let errorMsg = "Could not retrieve total supply for " + tokenID;
+		console.log(errorMsg, res);
+		throw res.error;
+	});
+	// Calculate percentage of circulating out of total 
+  // Might need to look into special lib cuz JS sucks at floating points
+  let percentage : number = ( circulatingSupply / totalSupply ) * 100;
 	// If over 1 trillion convert to teraborks
 	let circulatingSupplyStr = circulatingSupply.toLocaleString('en-GB', {minimumFractionDigits: 2}); 
 	if(circulatingSupply > 1e9) {
 		circulatingSupplyStr = convertToBorks(circulatingSupply);
 	} 
-	console.log("Updating status to \"" + circulatingSupplyStr + "\"");
+	let statusString = circulatingSupplyStr + " [" + percentage.toFixed(2) + "%]";
+	//console.log("Updating status to \"" + statusString + "\"");
 	// Set the client user's presence
-	client.user.setPresence({ activity: { name: circulatingSupplyStr, type: 'WATCHING' }, status: "online" })
+	client.user.setPresence({ activity: { name: statusString, type: 'WATCHING' }, status: "online" })
 	.catch(console.error);
 }
 

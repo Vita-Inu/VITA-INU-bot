@@ -35,7 +35,7 @@ export const convertToBorks = (amount : number) : string => {
     let prefix : string = "";
     let coString : string = "";
     let co : number;
-    console.log("convertToBorks: ", amount);
+    //console.log("convertToBorks: ", amount);
     if(amount >= 1e24) {
         co = amount / 1e24;
         prefix = "Y";
@@ -63,9 +63,9 @@ export const convertToBorks = (amount : number) : string => {
         prefix = "";
     }
     // Show 2 decimals for coefficient
-    console.log("co: ", co);
+    //console.log("co: ", co);
     coString = co.toLocaleString('en-GB', {minimumFractionDigits: 4})
-    console.log("after locale co: ", coString);
+    //console.log("after locale co: ", coString);
     returnString = coString + prefix;
     return returnString;
 };

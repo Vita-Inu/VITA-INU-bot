@@ -61,9 +61,7 @@ const showCirculatingSupply = async (message, tokenID : string) => {
   // Calculate percentage of circulating out of total 
   // Might need to look into special lib cuz JS sucks at floating points
   let percentage : number = ( circulatingSupply / totalSupply ) * 100;
-  console.log("Circulate : " + circulatingSupply);
-  console.log("Total: " + totalSupply);
-  console.log("Percentage: " + percentage);
+  //console.log("Circulate : " + circulatingSupply + " Total: " + totalSupply + " Percentage: " + percentage);
   // Send info to chat
   let chatMsg : string = "Circulating supply for " + tokenName + " is " + 
     circulatingSupply.toLocaleString('en-GB', {minimumFractionDigits: 2}) + " [" + percentage.toFixed(2) + "%]";
