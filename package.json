@@ -2,6 +2,8 @@
   "name": "vita_inu_bot",
   "version": "1.0.0",
   "description": "VITA INU Discord bot",
+  "author": "John Erik Garnham",
+  "license": "GPL-3.0-or-later",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
