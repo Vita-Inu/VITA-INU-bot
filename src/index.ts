@@ -3,6 +3,7 @@ import { WS_RPC } from '@vite/vitejs-ws';
 import { ViteAPI } from '@vite/vitejs';
 import { RPCResponse} from '@vite/vitejs/distSrc/utils/type';
 import { getCirculatingSupply } from './vite_functions';
+import { convertToBorks } from './common';
 
 const fs = require('fs');                   // Loads the Filesystem library
 const Discord = require('discord.js');      // Loads the discord API library
@@ -56,10 +57,14 @@ const updateCirculatingSupply = async () => {
 		console.log(errorMsg, res);
 		throw res.error;
 	});
-	let statusMessage : string = circulatingSupply.toLocaleString('en-GB', {minimumFractionDigits: 2}); 
-	console.log("Updating status to \"" + statusMessage + "\"");
+	// If over 1 trillion convert to teraborks
+	let circulatingSupplyStr = circulatingSupply.toLocaleString('en-GB', {minimumFractionDigits: 2}); 
+	if(circulatingSupply > 1e9) {
+		circulatingSupplyStr = convertToBorks(circulatingSupply);
+	} 
+	console.log("Updating status to \"" + circulatingSupplyStr + "\"");
 	// Set the client user's presence
-	client.user.setPresence({ activity: { name: statusMessage, type: 'WATCHING' }, status: "online" })
+	client.user.setPresence({ activity: { name: circulatingSupplyStr, type: 'WATCHING' }, status: "online" })
 	.catch(console.error);
 }
 
