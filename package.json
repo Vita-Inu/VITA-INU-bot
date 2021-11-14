@@ -5,6 +5,9 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
+    "clean:dist": "rm -rf dist/*",
+    "clean:node": "rm -rf node_modules",
+    "clean": "npm run clean:dist && npm run clean:node",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:prod": "tsc && pm2 start dist/index.js",
     "start:dev": "tsc && node dist/index.js"
