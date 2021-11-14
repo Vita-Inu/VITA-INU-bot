@@ -1,17 +1,8 @@
-import { Int32 } from '@vite/vitejs/distSrc/accountBlock/type';
-import { AccountBlockBlock, BlockType, TokenInfo } from '@vite/vitejs/distSrc/utils/type';
-import { getLogger } from './logger';
+import {getLogger } from './logger';
 import {DateTime} from 'luxon';
-import { getTokenInformation } from './vite_functions';
 
 const logger = getLogger();
 const VITE_DECIMALS = 18;
-
-export const getLatestCycleTimestampFromNow = () => {
-    const nowUtc = DateTime.utc();
-    const midnightUtc = nowUtc.set({second: 0, minute: 0, hour: 0, millisecond: 0});
-    return midnightUtc.toSeconds();
-};
 
 export const getTodayForFilename = () => {
     return DateTime.now().toFormat("yyyy-MM-dd");
@@ -39,68 +30,49 @@ export const convertRawToVite = (amount : number) => {
     return convertRaw(amount, VITE_DECIMALS);
 };
 
+export const convertToBorks = (amount : number) : string => {
+    let returnString : string = "";
+    let prefix : string = "";
+    let coString : string = "";
+    let co : number;
+    console.log("convertToBorks: ", amount);
+    if(amount >= 1e24) {
+        co = amount / 1e24;
+        prefix = "Y";
+    } else if(amount >= 1e21) {
+        co = amount / 1e18;
+        prefix = "Z";
+    } else if(amount >= 1e18) {
+        co = amount / 1e18;
+        prefix = "E";
+    } else if(amount >= 1e15) {
+        co = amount / 1e15;
+        prefix = "P";
+    } else if(amount >= 1e12) {
+        co = amount / 1e12;
+        prefix = "T";
+    } else if(amount >= 1e9) {
+        co = amount / 1e9;
+        prefix = "G";
+    } else if(amount >= 1e6) {
+        co = amount / 1e6;
+        prefix = "M";
+    } else {
+        // Don't convert 
+        co = amount;
+        prefix = "";
+    }
+    // Show 2 decimals for coefficient
+    console.log("co: ", co);
+    coString = co.toLocaleString('en-GB', {minimumFractionDigits: 4})
+    console.log("after locale co: ", coString);
+    returnString = coString + prefix;
+    return returnString;
+};
+
 export const quotaToUT = (quota) => {
     return quota / 21000
 };
-
-export const printAccountBlock = async (accountBlock : AccountBlockBlock) => {
-    let tokenInfo : TokenInfo = await getTokenInformation(accountBlock.tokenId);
-    let tokenString = "";
-    let amountString = "";
-    if(tokenInfo == null) {
-        const errorMsg = "getTokenInfo for " + accountBlock.tokenId + " returned null";
-        logger.error(errorMsg);
-        console.error(errorMsg)
-    } else {
-        let amount = parseInt(accountBlock.amount);
-        let decimals = parseInt(tokenInfo.decimals);
-        let viteAmount = convertRaw(amount,decimals);
-        tokenString = "\t[  " + tokenInfo.tokenSymbol + "  ]";
-        amountString = "\t[   " + viteAmount.toFixed(2) + "   ]";
-    }
-    return "**Block Height:** " + accountBlock.height + 
-        "\n**Block Type:** " + printBlockType(accountBlock.blockType) +
-        "\n**Address:** " + accountBlock.address +
-        "\n**To Address:** " + accountBlock.toAddress +
-        "\n**Token ID:** " + accountBlock.tokenId + tokenString +
-        "\n**Amount:** " + accountBlock.amount + amountString +
-        "\n**Data:** " + accountBlock.data +
-        "\n**Fee:** " + accountBlock.fee +
-        "\n**Difficulty:** " + accountBlock.difficulty +
-        "\n**Nonce:** " + accountBlock.nonce +
-        "\n**Hash:** " + accountBlock.hash + 
-        "\n**Previous Hash:** " + accountBlock.previousHash + 
-        "\n**Public Key:** " + accountBlock.publicKey +
-        "\n**Send Block Hash:** " + accountBlock.sendBlockHash +
-        "\n**Signature:** " + accountBlock.signature;
-};
-
-// Convert block type into string 
-export const printBlockType = (blockType : BlockType) => {
-    switch(blockType) {
-        case 1: return "CreateContractRequest";
-        case 2: return "TransferRequest";
-        case 3: return "ReIssueRequest";
-        case 4: return "Response";
-        case 5: return "ResponseFail";
-        case 6: return "RefundByContractRequest";
-        case 7: return "GenesisResponse";
-        default: return "UnknownBlockType";
-    }
-};
-
-// Returns true if block height is valid. False if invalid
-export const isValidBlockHeight = (blockHeight : Int32) => {
-    // Convert into number
-    let blockHeightValue : number = parseInt(blockHeight);
-    // Cannot parse integer value
-    if(isNaN(blockHeightValue)) return false;
-    // Block height must be greater than 0
-    if(blockHeightValue <= 0) return false;
-    // Else return true
-    return true;
-};
-
 
 // Returns true if address is valid. False if invalid
 export const isValidAddress = (address : string) => {
