@@ -1,6 +1,6 @@
 import { RPCResponse} from '@vite/vitejs/distSrc/utils/type';
 import { getLogger } from '../logger';
-import { getTotalSupply } from '../vite_functions';
+import { getTokenName, getTotalSupply } from '../vite_functions';
 
 const logger = getLogger();
 
@@ -43,7 +43,13 @@ const showTotalSupply = async (message, tokenID : string) => {
     console.log(errorMsg, res);
     throw res.error;
   });
+  // Look up token name for easier readability
+  let tokenName = await getTokenName(tokenID).catch((res: RPCResponse) => {
+    let errorMsg = "Could not get token name for " + tokenID;
+    logger.error(errorMsg, res);
+    console.log(res);
+  });
   // Send to chat
-  let chatMsg : string = "Total supply for " + tokenID + " is " + totalSupply.toLocaleString('en-GB', {minimumFractionDigits: 2}) ;
+  let chatMsg : string = "Total supply for " + tokenName + " is " + totalSupply.toLocaleString('en-GB', {minimumFractionDigits: 2}) ;
   message.channel.send(chatMsg);
 }

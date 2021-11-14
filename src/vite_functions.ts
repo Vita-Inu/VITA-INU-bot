@@ -6,6 +6,9 @@ import { AccountInfo, BalanceInfo} from './viteTypes';
 
 const logger = getLogger();
 
+// Cache for commonly looked up tokenIDs
+var tokenNames = new Map();
+
 // TEMPORARY: To get circulating supply remove 2nd biggest wallet too
 // Circulating Supply = Total Supply - Dev Wallet - vite_bff94cf2d417548492d0af26d1f2907992c32672a013370150
 const tempWallet = "vite_bff94cf2d417548492d0af26d1f2907992c32672a013370150";
@@ -26,8 +29,18 @@ export async function getTokenInformation(tokenID: string)  {
 // Get token name for given tokenID
 export async function getTokenName(tokenID: string)  {
     try {
-        const tokenInfo: TokenInfo = await viteClient.request('contract_getTokenInfoById', tokenID);
-        return tokenInfo.tokenName;
+        // Look up if value in cache
+        if(tokenNames.has(tokenID)) {
+            logger.info("getTokenName() - Returning cached value " + tokenNames.get(tokenID) + " for " + tokenID);
+            return tokenNames.get(tokenID);
+        } else {
+            // Look up token info
+            const tokenInfo: TokenInfo = await viteClient.request('contract_getTokenInfoById', tokenID);
+            // Cache it for fast future lookup
+            tokenNames.set(tokenID, tokenInfo.tokenName);
+            logger.info("getTokenName() - Caching " + tokenInfo.tokenName + " for " + tokenID);
+            return tokenInfo.tokenName;
+        }
     } catch(error) {
         const errorMsg = "Error while calling contract_getTokenInfoById \"" + tokenID + "\" : " + error;
         logger.error(errorMsg);
