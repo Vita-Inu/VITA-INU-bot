@@ -16,13 +16,6 @@ module.exports = {
       // Use Vite Inu as default
       let tokenID = vitaInuTTI;
       // User passes in address
-      if(args.length == 1) {
-        // Use argument passed if
-        tokenID = args[0];
-      } else if(args.length > 1) {
-        message.channel.send("Usage: " + prefix + "total [tokenID]");
-        return;
-      }
       console.log("Looking up total supply for tokenID: " + tokenID);
       // Get total supply for tokenID
       showTotalSupply(message, tokenID)
