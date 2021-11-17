@@ -9,21 +9,19 @@ module.exports = {
 
         console.log(message.author.username + " called set_prefix ");
 
-        // Only people with Core and Dev roles can set the bot prefix
-        const coreRole = message.guild.roles.cache.find(x => x.name === "Core");
-        const devRole = message.guild.roles.cache.find(x => x.name === "Dev");
+        // Only people with Admin role can set the bot prefix
+        const adminRole = message.guild.roles.cache.find(x => x.name === "ADMIN");
 
         // Check if roles are defined
-        if(typeof coreRole === 'undefined' && typeof devRole === 'undefined') {
-           let errorMsg : String = "Permission denied because Core and Dev roles are undefined";
+        if(typeof adminRole === 'undefined') {
+           let errorMsg : String = "Permission denied because ADMIN role are undefined";
            console.error(errorMsg);
            message.channel.send(errorMsg);
            return;
         }
 
         // Check that user has either role
-        if((typeof coreRole !== 'undefined' && message.member.roles.cache.has(coreRole.id))
-             || (typeof devRole !== 'undefined' && message.member.roles.cache.has(devRole.id))) {
+        if((typeof adminRole !== 'undefined' && message.member.roles.cache.has(adminRole.id))) {
             console.log(message.author.username + " has permission to change prefix");
             if(!args.length) {
                 // No new prefix. Output usage
@@ -32,11 +30,18 @@ module.exports = {
             } else {
                 // Read in new prefix
                 var newPrefix = args[0];
+                // Strip out @ because Kaffin is a dumbass
+		        newPrefix = newPrefix.replace(/@/g, "_");
                 // Create new config
                 var newConfig = {
                     token: oldConfig.token,
+                    interval: oldConfig.interval,
                     prefix: newPrefix,
-                    network: oldConfig.network
+                    viteNode: oldConfig.viteNode,
+                    tti: oldConfig.tti,
+                    devWallet: oldConfig.devWallet,
+                    clinetID: oldConfig.clientID,
+                    permissions: oldConfig.permissions
                 };
                 // Write new config 
                 try {
