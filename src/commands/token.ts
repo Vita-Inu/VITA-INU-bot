@@ -18,19 +18,6 @@ module.exports = {
         let prefix = message.client.botConfig.prefix; 
         // Use Vite Inu as default
         let tokenID = vitaInuTTI;
-        // User passes in address
-        if(args.length == 1) {
-            // Use argument passed if
-            tokenID = args[0];
-             // Validate token ID
-            if(!vite.utils.isValidTokenId(tokenID)) {
-                message.channel.send("Invaid token ID \"" + tokenID + "\"");
-                return;
-            }
-        } else if(args.length > 1) {
-            message.channel.send("Usage: " + prefix + "total [tokenID]");
-            return;
-        }
         // Get token info for tokenID
         showTokenInformation(message, tokenID)
         .catch(error => {

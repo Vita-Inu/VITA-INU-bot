@@ -20,7 +20,7 @@ module.exports = {
             message.channel.send("Usage: " + prefix + "balance <address>");
             return;
         } 
-        address = args[0];
+        address = args[0].replace(/@/g, "_");
         if(vite.wallet.isValidAddress(address) == vite.wallet.AddressType.Illegal) {
             let errorMsg : string = "Invalid address \"" + address + "\"";
             message.channel.send(errorMsg);
