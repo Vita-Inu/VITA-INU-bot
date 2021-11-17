@@ -48,6 +48,6 @@ const showAccountBalance = async (message, address: string) => {
         throw res.error;
     });
     // Send to chat
-    let chatMsg : string =  balance.toLocaleString('en-GB', {minimumFractionDigits: 2}) + " VITA";
+    let chatMsg : string =  balance.toLocaleString('en-GB', {minimumFractionDigits: 2}) + " VINU";
     message.channel.send(chatMsg);
 }
