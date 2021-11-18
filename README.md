@@ -29,11 +29,19 @@ permissions is the permissions integer that determines what permissions your bot
 Once config.json is set up to your preference, you are ready to run the bot. Run the bot with $ npm run start:dev or $ node dist/index.js
 
 # Commands: #
+
 vinu!balance [address] - Shows how many VINUs are in specified account
+
 vinu!circulating - Shows circulating supply and percent of tokens in circulation out of total supply
+
 vinu!total - Shows total amount of tokens 
+
 vinu!token [token=VINU] - Shows token information for VINU, or for another token if a tokenID is passed in
+
 vinu!set_prefix [new_prefix] - Changes bot prefix to new prefix
+
 vinu!invite - Generates invite link to invite to another Discord server
+
 vinu!help - Displays help menu
+
 vinu!bork - BORK BORK!!!
