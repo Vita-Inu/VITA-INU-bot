@@ -10,7 +10,7 @@ const logger = getLogger();
 // Cache for commonly looked up tokenIDs
 var tokenNames = new Map();
 
-const Config = require('../../config.json');    // Loads the configuration values
+const Config = require('../config.json');    // Loads the configuration values
 const devWallet = Config.devWallet; 
 const vitaInuTTI = Config.tti;
 
