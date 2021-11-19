@@ -4,16 +4,15 @@ import { viteClient } from './index';
 import { getLogger } from './logger';
 import { AccountInfo, BalanceInfo} from './viteTypes';
 import fetch from 'node-fetch';
-import { ADDR_LEN } from '@vite/vitejs/distSrc/wallet/address';
 
 const logger = getLogger();
 
 // Cache for commonly looked up tokenIDs
 var tokenNames = new Map();
 
-// TEMPORARY: To get circulating supply remove 2nd biggest wallet too
-// Circulating Supply = Total Supply - Dev Wallet - vite_bff94cf2d417548492d0af26d1f2907992c32672a013370150
-const tempWallet = "vite_bff94cf2d417548492d0af26d1f2907992c32672a013370150";
+const Config = require('../../config.json');    // Loads the configuration values
+const devWallet = Config.devWallet; 
+const vitaInuTTI = Config.tti;
 
 // Get TokenInfo for given tokenID
 export async function getTokenInformation(tokenID: string)  {
@@ -158,12 +157,30 @@ export async function getTotalMarketCap(tokenID: string)  {
         console.log(errorMsg, res);
         throw res.error;
     });
-    let totalCirculatingSupply : number = totalSupply * price;
-    console.log("Total circulating supply for " + tokenID + " is " + totalCirculatingSupply);
-    return totalCirculatingSupply;
+    let totalMarketCap : number = totalSupply * price;
+    console.log("Total market cap for " + tokenID + " is " + totalMarketCap);
+    return totalMarketCap;
 }
 
-
+// Circulating Market Cap = Circulating Supply x Price
+export async function getCirculatingMarketCap(tokenID: string)  {
+    let circulatingSupply : number = await getCirculatingSupply(tokenID,devWallet)
+        .catch((res: RPCResponse) => {
+            let errorMsg = "Could not get total supply for  " + tokenID;
+            logger.error(errorMsg);
+            console.log(errorMsg, res);
+            throw res.error;
+        });
+    let price : number = await getTokenPrice(tokenID).catch((res: RPCResponse) => {
+        let errorMsg = "Could not get price for " + tokenID;
+        logger.error(errorMsg);
+        console.log(errorMsg, res);
+        throw res.error;
+    });
+    let circulatingMarketCap : number = circulatingSupply * price;
+    console.log("Circulating market cap for " + tokenID + " is " + circulatingMarketCap);
+    return circulatingMarketCap;
+}
 
 export async function getTokenPrice(tti: string)  {
     // Form url to get price
