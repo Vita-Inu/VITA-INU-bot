@@ -32,6 +32,11 @@ module.exports = {
             } else {
                 // Read in new prefix
                 var newPrefix = args[0];
+                // Make sure prefix is valid
+                if(newPrefix.includes('@')) {
+                    console.error("Invalid prefix");
+                    message.channel.send("Invalid Prefix");
+                }
                 // Create new config
                 var newConfig = {
                     token: oldConfig.token,

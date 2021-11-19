@@ -21,7 +21,7 @@ module.exports = {
         // User passes in address
         if(args.length == 1) {
             // Use argument passed if
-            tokenID = args[0];
+            tokenID = args[0].replace('@', '@​\u200b'); 
              // Validate token ID
             if(!vite.utils.isValidTokenId(tokenID)) {
                 message.channel.send("Invaid token ID \"" + tokenID + "\"");
