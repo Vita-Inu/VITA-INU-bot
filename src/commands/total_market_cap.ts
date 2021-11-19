@@ -1,6 +1,6 @@
 import { RPCResponse} from '@vite/vitejs/distSrc/utils/type';
 import { getLogger } from '../logger';
-import { getTokenName, getTotalSupply } from '../vite_functions';
+import { getTokenName, getTotalMarketCap, getTotalSupply } from '../vite_functions';
 
 const logger = getLogger();
 
@@ -39,7 +39,7 @@ module.exports = {
 
 const showTotalMarketCap = async (message, tokenID : string) => {
   // Get total supply for token ID
-  let totalSupply : number = await getTotalSupply(tokenID).catch((res: RPCResponse) => {
+  let totalMarketCap : number = await getTotalMarketCap(tokenID).catch((res: RPCResponse) => {
     let errorMsg = "Could not retrieve total market cap for " + tokenID;
     logger.error(errorMsg);
     console.log(errorMsg, res);
@@ -52,6 +52,7 @@ const showTotalMarketCap = async (message, tokenID : string) => {
     console.log(res);
   });
   // Send to chat
-  let chatMsg : string = "Total supply for " + tokenName + " is " + totalSupply.toLocaleString('en-GB', {minimumFractionDigits: 2}) ;
+  let chatMsg : string = "Total market cap " + tokenName + " is " + 
+    totalMarketCap.toLocaleString('en-GB', {minimumFractionDigits: 2}) ;
   message.channel.send(chatMsg);
 }
