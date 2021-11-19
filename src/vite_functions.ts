@@ -3,6 +3,8 @@ import { convertRaw } from './common';
 import { viteClient } from './index';
 import { getLogger } from './logger';
 import { AccountInfo, BalanceInfo} from './viteTypes';
+import fetch from 'node-fetch';
+import { ADDR_LEN } from '@vite/vitejs/distSrc/wallet/address';
 
 const logger = getLogger();
 
@@ -139,4 +141,56 @@ export async function getCirculatingSupply(tokenID: string, devWallet: string ) 
         console.error(errorMsg);
         throw error;
     }
+}
+
+// Total Market Cap = Total Supply x Price
+export async function getTotalMarketCap(tokenID: string)  {
+    let totalSupply : number = await getTotalSupply(tokenID)
+        .catch((res: RPCResponse) => {
+            let errorMsg = "Could not get total supply for  " + tokenID;
+            logger.error(errorMsg);
+            console.log(errorMsg, res);
+            throw res.error;
+        });
+    let price : number = await getTokenPrice(tokenID).catch((res: RPCResponse) => {
+        let errorMsg = "Could not get price for " + tokenID;
+        logger.error(errorMsg);
+        console.log(errorMsg, res);
+        throw res.error;
+    });
+    let totalCirculatingSupply : number = totalSupply * price;
+    console.log("Total circulating supply for " + tokenID + " is " + totalCirculatingSupply);
+    return totalCirculatingSupply;
+}
+
+
+
+export async function getTokenPrice(tti: string)  {
+    // Form url to get price
+    const priceUrl = "https://api.vitex.net/api/v2/exchange-rate?tokenSymbols=" + tti;
+    fetch(priceUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("HTTP error " + response.status);
+            }
+            return response.json();
+        })
+        .then(json => {
+            if(json.code != 0) {
+                console.log("Fetch " + priceUrl + " Response Code : " + json.code + " MSG: " + json.msg);
+                return -1;
+            }
+            // Parse USD out of JSON
+            if(json.data.length >= 1) {
+                let data = json.data[0];
+                return data.usdRate;
+            } else {
+                console.log("Could not find price data for " + tti);
+                return -1;
+            }
+        }) 
+        .catch(function (error) {
+            console.log(error);
+        })
+        return -1;
 }
