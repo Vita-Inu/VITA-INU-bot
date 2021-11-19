@@ -6,6 +6,7 @@ const logger = getLogger();
 
 const Config = require('../../config.json');    // Loads the configuration values
 const vitaInuTTI = Config.tti;
+const vitaInuTokenId = Config.tokenID;
 
 /*  Total Market Cap = Total Supply x Price */
 module.exports = {
@@ -45,14 +46,8 @@ const showTotalMarketCap = async (message, tokenID : string) => {
     console.log(errorMsg, res);
     throw res.error.message;
   });
-  // Look up token name for easier readability
-  let tokenName = await getTokenName(tokenID).catch((res: RPCResponse) => {
-    let errorMsg = "Could not get token name for " + tokenID;
-    logger.error(errorMsg, res);
-    console.log(res);
-  });
   // Send to chat
-  let chatMsg : string = "Total market cap " + tokenName + " is " + 
+  let chatMsg : string = "Total market cap " + vitaInuTokenId + " is " + 
     totalMarketCap.toLocaleString('en-GB', {minimumFractionDigits: 2}) ;
   message.channel.send(chatMsg);
 }

@@ -5,7 +5,7 @@ import { getCirculatingMarketCap, getTokenName, getTokenPrice, getTotalSupply } 
 const logger = getLogger();
 
 const Config = require('../../config.json');    // Loads the configuration values
-const vitaInuTokenId = Config.tokenID;
+let vitaInuTokenId = Config.tokenID;
 
 /*  Total Market Cap = Total Supply x Price */
 module.exports = {

@@ -6,6 +6,7 @@ const logger = getLogger();
 
 const Config = require('../../config.json');    // Loads the configuration values
 const vitaInuTTI = Config.tti;
+const vitaInuTokenId = Config.tokenID;
 
 module.exports = {
 	name: 'total',
@@ -43,13 +44,7 @@ const showTotalSupply = async (message, tokenID : string) => {
     console.log(errorMsg, res);
     throw res.error;
   });
-  // Look up token name for easier readability
-  let tokenName = await getTokenName(tokenID).catch((res: RPCResponse) => {
-    let errorMsg = "Could not get token name for " + tokenID;
-    logger.error(errorMsg, res);
-    console.log(res);
-  });
   // Send to chat
-  let chatMsg : string = "Total supply for " + tokenName + " is " + totalSupply.toLocaleString('en-GB', {minimumFractionDigits: 2}) ;
+  let chatMsg : string = "Total supply for " + vitaInuTokenId + " is " + totalSupply.toLocaleString('en-GB', {minimumFractionDigits: 2}) ;
   message.channel.send(chatMsg);
 }

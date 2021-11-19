@@ -185,29 +185,37 @@ export async function getCirculatingMarketCap(tokenID: string)  {
 export async function getTokenPrice(tti: string)  {
     // Form url to get price
     const priceUrl = "https://api.vitex.net/api/v2/exchange-rate?tokenSymbols=" + tti;
+    console.log("Fetching " + priceUrl)
+    let usdPrice = -1;
     fetch(priceUrl)
         .then(response => {
             if (!response.ok) {
+                console.log("Response not OK : " + response.status);
                 throw new Error("HTTP error " + response.status);
             }
-            return response.json();
+            return -1;
         })
         .then(json => {
-            if(json.code != 0) {
-                console.log("Fetch " + priceUrl + " Response Code : " + json.code + " MSG: " + json.msg);
-                return -1;
-            }
-            // Parse USD out of JSON
-            if(json.data.length >= 1) {
-                let data = json.data[0];
-                return data.usdRate;
+            console.log("Fetch " + priceUrl + " Response Code : " + json.code + " MSG: " + json.msg);
+            if(json.code == 0) {
+                // Parse USD out of JSON
+                console.log("JSON data length : " + json.data.length);
+                if(json.data.length >= 1) {
+                    let data = json.data[0];
+                    console.log("USD Rate of :" + data.usdRate);
+                    usdPrice = data.usdRate;
+                } else {
+                    console.log("Could not find price data for " + tti);
+                }
             } else {
-                console.log("Could not find price data for " + tti);
-                return -1;
-            }
-        }) 
+                let errorMsg = "Fetch " + priceUrl + " Response Code : " + json.code + " MSG: " + json.msg;
+                logger.error(errorMsg);
+                console.log(errorMsg);
+            } 
+            return usdPrice;
+        })
         .catch(function (error) {
             console.log(error);
+            return -1;
         })
-        return -1;
 }

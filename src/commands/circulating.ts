@@ -7,6 +7,7 @@ const logger = getLogger();
 const Config = require('../../config.json');    // Loads the configuration values
 const devWallet = Config.devWallet; 
 const vitaInuTTI = Config.tti;
+const vitaInuTokenId = Config.tokenID;
 
 module.exports = {
 	name: 'circulating',
@@ -52,18 +53,12 @@ const showCirculatingSupply = async (message, tokenID : string) => {
     console.log(errorMsg, res);
     throw res.error;
   });
-  // Look up token name for easier readability
-  let tokenName = await getTokenName(tokenID).catch((res: RPCResponse) => {
-    let errorMsg = "Could not get token name for " + tokenID;
-    logger.error(errorMsg, res);
-    console.log(res);
-  });
   // Calculate percentage of circulating out of total 
   // Might need to look into special lib cuz JS sucks at floating points
   let percentage : number = ( circulatingSupply / totalSupply ) * 100;
   //console.log("Circulate : " + circulatingSupply + " Total: " + totalSupply + " Percentage: " + percentage);
   // Send info to chat
-  let chatMsg : string = "Circulating supply for " + tokenName + " is " + 
+  let chatMsg : string = "Circulating supply for " + vitaInuTokenId + " is " + 
     circulatingSupply.toLocaleString('en-GB', {minimumFractionDigits: 2}) + " [" + percentage.toFixed(2) + "%]";
   message.channel.send(chatMsg);
 }
