@@ -104,13 +104,11 @@ client.on('message', message => {
 	if (!message.content.startsWith(prefix) || message.author.bot) return;
 	// Parse user input
 	const args = message.content.slice(prefix.length).trim().split(/ +/);
-	var input : string = args.shift().toLowerCase();
+	var input : string = args.shift().toLowerCase().replace(/@/g, "_");
 	// Check if it has this command
 	if (!client.commands.has(input) && !client.aliases.has(input)) {
 		// Command not found. Report an error and return
 		console.error("Unknown command: " + input);
-		// Strip out @ because Kaffin is a dumbass
-		input = input.replace(/@/g, "_");
 		message.channel.send('I do not know what ' + input + ' means.');
 		return;
 	} 

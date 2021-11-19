@@ -14,14 +14,22 @@ module.exports = {
         message.channel.send("Usage: " + prefix + "convert <number>");
         return;
     } 
-    // Strip commas out of amount 
-    amountString = args[0];
-    console.log("Convert: " + amountString);
-    amountString = amountString.split(',').join('');
-    console.log("Stripped: " + amountString);
-    amount = parseInt(amountString);
-    console.log("To int: " + amount);
-    let converted = convertToBorks(amount); 
+    try {
+      // Strip commas out of amount 
+      amountString = args[0].replace(/@/g, "_");
+      console.log("Convert: " + amountString);
+      amountString = amountString.split(',').join('');
+      console.log("Stripped: " + amountString);
+      amount = parseInt(amountString);
+      if(isNaN(amount)) {
+        message.channel.send(amountString + " is not a number");
+        return;
+      }
+      console.log("To int: " + amount);
+      let converted = convertToBorks(amount); 
       message.channel.send(amount + " -> " + converted);
+    } catch(err) {
+      message.channel.send("Invalid amount: " + amount);
+    }
   },
 };
