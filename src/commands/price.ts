@@ -1,6 +1,6 @@
 import { RPCResponse} from '@vite/vitejs/distSrc/utils/type';
 import { getLogger } from '../logger';
-import { getCirculatingMarketCap, getTokenName, getTokenPrice, getTotalSupply } from '../vite_functions';
+import { getTokenPriceByTokenID } from '../vite_functions';
 
 const logger = getLogger();
 
@@ -39,7 +39,7 @@ module.exports = {
 
 const showPrice = async (message, tokenID : string) => {
   // Look up price for tokenID
-  let price  = await getTokenPrice(tokenID).catch((res: RPCResponse) => {
+  let price  = await getTokenPriceByTokenID(tokenID).catch((res: RPCResponse) => {
     let errorMsg = "Could not get price for " + tokenID;
     logger.error(errorMsg);
     console.log(errorMsg, res);

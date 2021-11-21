@@ -93,17 +93,18 @@ export async function getAccountBalance(address: string, tokenID: string)  {
     }
 }
 
-// Get total supply of tokenID
-export async function getTotalSupply(tokenID: string)  {
+// Get total supply of tti
+export async function getTotalSupply(tti: string)  {
+    console.log("Calculating total supply for: " + tti);
     // Get token info for specified tokenID
-    const tokenInfo : TokenInfo = await getTokenInformation(tokenID).catch((res: RPCResponse) => {
-        let errorMsg = "Could not retrieve token info for \"" + tokenID + "\" : " + res.error.message;
+    const tokenInfo : TokenInfo = await getTokenInformation(tti).catch((res: RPCResponse) => {
+        let errorMsg = "Could not retrieve token info for \"" + tti + "\" : " + res.error.message;
         logger.error(errorMsg);
         console.log(errorMsg);
         throw res.error;
     });
     if(tokenInfo == null) {
-        console.log("No token information available for " + tokenID);
+        console.log("No token information available for " + tti);
         return -1;
     } else {
         // Return total supply converted from raw
@@ -113,23 +114,24 @@ export async function getTotalSupply(tokenID: string)  {
     }
 }
 
-// Get circulating supply for tokenID. Need to provide dev wallet address.
+// Get circulating supply for tti. Need to provide dev wallet address.
 // Circulating supply = total supply - dev wallet balance
-export async function getCirculatingSupply(tokenID: string, devWallet: string )  {
+export async function getCirculatingSupply(tti: string, devWallet: string )  {
+    console.log("Calculating circulating supply for: " + tti);
     try {
-        // Get token info for specified tokenID
-        console.log("Retrieving token info for " + tokenID)
+        // Get token info for specified tti
+        console.log("Retrieving token info for " + tti)
         // Get total supply for token ID
-        let totalSupply : number = await getTotalSupply(tokenID).catch((res: RPCResponse) => {
-            let errorMsg = "Could not retrieve total supply for " + tokenID;
+        let totalSupply : number = await getTotalSupply(tti).catch((res: RPCResponse) => {
+            let errorMsg = "Could not retrieve total supply for " + tti;
             logger.error(errorMsg);
             console.log(errorMsg, res);
             throw res.error;
         });
-        console.log("Total supply for " + tokenID + " is " + totalSupply);
+        console.log("Circulating supply for " + tti + " is " + totalSupply);
         // Get balance of devWallet
-        let devWalletBalance : number = await getAccountBalance(devWallet, tokenID).catch((res: RPCResponse) => {
-            let errorMsg = "Could not retrieve account balance for " + devWallet + " token " + tokenID + " : " + res.error.message;
+        let devWalletBalance : number = await getAccountBalance(devWallet, tti).catch((res: RPCResponse) => {
+            let errorMsg = "Could not retrieve account balance for " + devWallet + " token " + tti + " : " + res.error.message;
             logger.error(errorMsg);
             console.log(errorMsg);
             throw res.error;
@@ -137,8 +139,8 @@ export async function getCirculatingSupply(tokenID: string, devWallet: string ) 
         console.log("Dev wallet balance for " + devWallet + " is " + devWalletBalance);
         // ******************************************* REMOVE LATER ********************************
         // Get balance of tempWallet
-        let tempWalletBalance : number = await getAccountBalance(tempWallet, tokenID).catch((res: RPCResponse) => {
-            let errorMsg = "Could not retrieve account balance for " + tempWallet + " token " + tokenID + " : " + res.error.message;
+        let tempWalletBalance : number = await getAccountBalance(tempWallet, tti).catch((res: RPCResponse) => {
+            let errorMsg = "Could not retrieve account balance for " + tempWallet + " token " + tti + " : " + res.error.message;
             logger.error(errorMsg);
             console.log(errorMsg);
             throw res.error;
@@ -147,7 +149,7 @@ export async function getCirculatingSupply(tokenID: string, devWallet: string ) 
         // Return circulating supply = total supply - dev wallet
         return totalSupply - devWalletBalance - tempWalletBalance;
     } catch(error) {
-        const errorMsg = "Error getting circulating supply for " + devWallet + " token " + tokenID + " : " + error;
+        const errorMsg = "Error getting circulating supply for " + devWallet + " token " + tti + " : " + error;
         logger.error(errorMsg);
         console.error(errorMsg);
         throw error;
@@ -155,52 +157,66 @@ export async function getCirculatingSupply(tokenID: string, devWallet: string ) 
 }
 
 // Total Market Cap = Total Supply x Price
-export async function getTotalMarketCap(tokenID: string)  {
-    let totalSupply : number = await getTotalSupply(tokenID)
+export async function getTotalMarketCap(tti: string)  {
+    console.log("Calculating total market cap for: " + tti);
+    let totalSupply : number = await getTotalSupply(tti)
         .catch((res: RPCResponse) => {
-            let errorMsg = "Could not get total supply for  " + tokenID;
+            let errorMsg = "Could not get total market cap for  " + tti;
             logger.error(errorMsg);
             console.log(errorMsg, res);
             throw res.error;
         });
-    let price : number = await getTokenPrice(tokenID).catch((res: RPCResponse) => {
-        let errorMsg = "Could not get price for " + tokenID;
+    let price : number = await getTokenPriceByTTI(tti).catch((res: RPCResponse) => {
+        let errorMsg = "Could not get price for " + tti;
         logger.error(errorMsg);
         console.log(errorMsg, res);
         throw res.error;
     });
     let totalMarketCap : number = totalSupply * price;
-    console.log("Total market cap for " + tokenID + " is " + totalMarketCap);
+    console.log("Total market cap for " + tti + " is " + totalMarketCap);
     return totalMarketCap;
 }
 
 // Circulating Market Cap = Circulating Supply x Price
-export async function getCirculatingMarketCap(tokenID: string)  {
-    let circulatingSupply = await getCirculatingSupply(tokenID,devWallet)
+export async function getCirculatingMarketCap(tti: string)  {
+    console.log("Calculating circulating market cap for: " + tti);
+    let circulatingSupply = await getCirculatingSupply(tti,devWallet)
         .catch((res: RPCResponse) => {
-            let errorMsg = "Could not get total supply for  " + tokenID;
+            let errorMsg = "Could not get circulating market cap for  " + tti;
             logger.error(errorMsg);
             console.log(errorMsg, res);
             throw res.error;
-        });
-    let price : number = await getTokenPrice(tokenID).catch((res: RPCResponse) => {
-        let errorMsg = "Could not get price for " + tokenID;
+        })
+    console.log("Circulating supply for " + tti + " : " + circulatingSupply);
+    let price : number = await getTokenPriceByTTI(tti).catch((res: RPCResponse) => {
+        let errorMsg = "Could not get price for " + tti;
         logger.error(errorMsg);
         console.log(errorMsg, res);
         throw res.error;
     });
     try {
-    let circulatingMarketCap = circulatingSupply * price;
-    console.log("Circulating market cap for " + tokenID + " is " + circulatingMarketCap);
-    return circulatingMarketCap;
+        let circulatingMarketCap = circulatingSupply * price;
+        console.log("Circulating market cap for " + tti + " is " + circulatingMarketCap);
+        return circulatingMarketCap;
     } catch(error) {
         console.error(error);
     }
 }
 
-export async function getTokenPrice(tti: string) : Promise<number> {
+// Get price by tokenID (i.e. VINU-001)
+export async function getTokenPriceByTokenID(tokenID: string) : Promise<number> {
+    return getTokenPrice("tokenSymbols",tokenID);
+}
+
+// Get price by tti (i.e. tti_541b25bd5e5db35166864096 )
+export async function getTokenPriceByTTI(tti: string) : Promise<number> {
+    return getTokenPrice("tokenIds",tti);
+}
+
+export async function getTokenPrice(paramName: string, token: string) : Promise<number> {
     // Form url to get price
-    const priceUrl = "https://api.vitex.net/api/v2/exchange-rate?tokenSymbols=" + tti;
+    const priceUrl = "https://api.vitex.net/api/v2/exchange-rate?" + paramName + "=" + token;
+    console.log("Fetching price data from " + priceUrl);
     return fetch(priceUrl)
         .then(response => {
             if (!response.ok) {
@@ -212,12 +228,13 @@ export async function getTokenPrice(tti: string) : Promise<number> {
             if(json.code != 0) {
                 throw new Error("Invalid Code " + json.code + " Msg: " + json.msg);
             }
+            console.log("JSON returned: " + JSON.stringify(json));
             // Parse USD out of JSON
             if(json.data.length >= 1) {
                 let data = json.data[0];
                 return data.usdRate;
             } else {
-                throw new Error("Could not find price data for " + tti);
+                throw new Error("Could not find price data for " + token);
             }
         }) 
         .catch(function (error) {

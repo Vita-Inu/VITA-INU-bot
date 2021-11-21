@@ -38,10 +38,10 @@ module.exports = {
 	},
 };
 
-const showTotalMarketCap = async (message, tokenID : string) => {
+const showTotalMarketCap = async (message, tti : string) => {
   // Get total supply for token ID
-  let totalMarketCap : number = await getTotalMarketCap(tokenID).catch((res: RPCResponse) => {
-    let errorMsg = "Could not retrieve total market cap for " + tokenID;
+  let totalMarketCap : number = await getTotalMarketCap(tti).catch((res: RPCResponse) => {
+    let errorMsg = "Could not retrieve total market cap for " + tti;
     logger.error(errorMsg);
     console.log(errorMsg, res);
     throw res.error.message;

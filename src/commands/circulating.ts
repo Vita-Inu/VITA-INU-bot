@@ -25,7 +25,7 @@ module.exports = {
         message.channel.send("Usage: " + prefix + "circulating [tokenID]");
         return;
       }
-      console.log("Looking up circulalting supply for tokenID: " + tokenID);
+      console.log("Looking up circulalting supply for tti: " + tokenID);
       // Get circulating supply for tokenID
       showCirculatingSupply(message, tokenID)
       .catch(error => {
