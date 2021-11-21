@@ -38,21 +38,23 @@ module.exports = {
 };
 
 // TODO: Cache values that are used repeatedly to make faster ? 
-const showCirculatingSupply = async (message, tokenID : string) => {
+const showCirculatingSupply = async (message, tti : string) => {
   // Get circulating supply for token ID
-  let circulatingSupply : number = await getCirculatingSupply(tokenID,devWallet).catch((res: RPCResponse) => {
-    let errorMsg = "Could not retrieve circulating supply for " + tokenID;
+  let circulatingSupply : number = await getCirculatingSupply(tti).catch((res: RPCResponse) => {
+    let errorMsg = "Could not retrieve circulating supply for " + tti;
     logger.error(errorMsg);
     console.log(errorMsg, res);
     throw res.error;
   });
+  console.log("Circulating supply for " + tti + " : " + circulatingSupply);
   // Get total supply for token ID
-  let totalSupply : number = await getTotalSupply(tokenID).catch((res: RPCResponse) => {
-    let errorMsg = "Could not retrieve total supply for " + tokenID;
+  let totalSupply : number = await getTotalSupply(tti).catch((res: RPCResponse) => {
+    let errorMsg = "Could not retrieve total supply for " + tti;
     logger.error(errorMsg);
     console.log(errorMsg, res);
     throw res.error;
   });
+  console.log("Total supply for " + tti + " : " + totalSupply);
   // Calculate percentage of circulating out of total 
   // Might need to look into special lib cuz JS sucks at floating points
   let percentage : number = ( circulatingSupply / totalSupply ) * 100;

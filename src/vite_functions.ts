@@ -93,69 +93,6 @@ export async function getAccountBalance(address: string, tokenID: string)  {
     }
 }
 
-// Get total supply of tti
-export async function getTotalSupply(tti: string)  {
-    console.log("Calculating total supply for: " + tti);
-    // Get token info for specified tokenID
-    const tokenInfo : TokenInfo = await getTokenInformation(tti).catch((res: RPCResponse) => {
-        let errorMsg = "Could not retrieve token info for \"" + tti + "\" : " + res.error.message;
-        logger.error(errorMsg);
-        console.log(errorMsg);
-        throw res.error;
-    });
-    if(tokenInfo == null) {
-        console.log("No token information available for " + tti);
-        return -1;
-    } else {
-        // Return total supply converted from raw
-        let totalSupply : number = parseInt(tokenInfo.totalSupply);
-        let decimals : number = parseInt(tokenInfo.decimals);
-        return convertRaw(totalSupply, decimals);
-    }
-}
-
-// Get circulating supply for tti. Need to provide dev wallet address.
-// Circulating supply = total supply - dev wallet balance
-export async function getCirculatingSupply(tti: string, devWallet: string )  {
-    console.log("Calculating circulating supply for: " + tti);
-    try {
-        // Get token info for specified tti
-        console.log("Retrieving token info for " + tti)
-        // Get total supply for token ID
-        let totalSupply : number = await getTotalSupply(tti).catch((res: RPCResponse) => {
-            let errorMsg = "Could not retrieve total supply for " + tti;
-            logger.error(errorMsg);
-            console.log(errorMsg, res);
-            throw res.error;
-        });
-        console.log("Total supply for " + tti + " is " + totalSupply);
-        // Get balance of devWallet
-        let devWalletBalance : number = await getAccountBalance(devWallet, tti).catch((res: RPCResponse) => {
-            let errorMsg = "Could not retrieve account balance for " + devWallet + " token " + tti + " : " + res.error.message;
-            logger.error(errorMsg);
-            console.log(errorMsg);
-            throw res.error;
-        });
-        console.log("Dev wallet balance for " + devWallet + " is " + devWalletBalance);
-        // ******************************************* REMOVE LATER ********************************
-        // Get balance of tempWallet
-        let tempWalletBalance : number = await getAccountBalance(tempWallet, tti).catch((res: RPCResponse) => {
-            let errorMsg = "Could not retrieve account balance for " + tempWallet + " token " + tti + " : " + res.error.message;
-            logger.error(errorMsg);
-            console.log(errorMsg);
-            throw res.error;
-        });
-        console.log("Temp wallet balance for " + tempWallet + " is " + tempWalletBalance);
-        // Return circulating supply = total supply - dev wallet
-        return totalSupply - devWalletBalance - tempWalletBalance;
-    } catch(error) {
-        const errorMsg = "Error getting circulating supply for " + devWallet + " token " + tti + " : " + error;
-        logger.error(errorMsg);
-        console.error(errorMsg);
-        throw error;
-    }
-}
-
 // Total Market Cap = Total Supply x Price
 export async function getTotalMarketCap(tti: string)  {
     console.log("Calculating total market cap for: " + tti);
@@ -182,9 +119,9 @@ export async function getTotalMarketCap(tti: string)  {
 // Circulating Market Cap = Circulating Supply x Price
 export async function getCirculatingMarketCap(tti: string)  {
     console.log("Calculating circulating market cap for: " + tti);
-    let circulatingSupply = await getCirculatingSupply(tti,devWallet)
+    let circulatingSupply = await getCirculatingSupply(tti)
         .catch((res: RPCResponse) => {
-            let errorMsg = "Could not get circulating market cap for  " + tti;
+            let errorMsg = "Could not get circulating supply for  " + tti;
             logger.error(errorMsg);
             console.log(errorMsg, res);
             throw res.error;
@@ -243,4 +180,119 @@ export async function getTokenPrice(paramName: string, token: string) : Promise<
         .catch(function (error) {
             console.log(error);
         })
+}
+
+// Fetch circulating_supply from Not Thomiz node
+export async function getCirculatingSupply(tti: string) : Promise<number> {
+    // Form URL
+    const apiUrl = "https://vite-api.thomiz.dev/supply/circulating/" + tti;
+    console.log("Fetching circulating supply data from " + apiUrl);
+    return fetch(apiUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("HTTP error " + response.status);
+            }
+            return response.json();
+        })
+        .then(json => {
+            if('circulating_supply' in json) {
+                return json.circulating_supply;
+            } else {
+                throw new Error("circulating_supply not found in json. Json: " + 
+                    JSON.stringify(json));
+            }
+        }) 
+        .catch(function (error) {
+            console.log(error);
+        })
+}
+
+// Fetch total_supply from Not Thomiz node
+export async function getTotalSupply(tti: string) : Promise<number> {
+    // Form URL
+    const apiUrl = "https://vite-api.thomiz.dev/supply/circulating/" + tti;
+    console.log("Fetching total supply datafrom " + apiUrl);
+    return fetch(apiUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("HTTP error " + response.status);
+            }
+            return response.json();
+        })
+        .then(json => {
+            if('total_supply' in json) {
+                return json.total_supply;
+            } else {
+                throw new Error("total_supply not found in json. Json: " + 
+                    JSON.stringify(json));
+            }
+        }) 
+        .catch(function (error) {
+            console.log(error);
+        })
+}
+
+// @deprecated Use new function which uses Not Thomiz's endpoint
+// Get total supply of tti
+export async function _getTotalSupply(tti: string)  {
+    console.log("Calculating total supply for: " + tti);
+    // Get token info for specified tokenID
+    const tokenInfo : TokenInfo = await getTokenInformation(tti).catch((res: RPCResponse) => {
+        let errorMsg = "Could not retrieve token info for \"" + tti + "\" : " + res.error.message;
+        logger.error(errorMsg);
+        console.log(errorMsg);
+        throw res.error;
+    });
+    if(tokenInfo == null) {
+        console.log("No token information available for " + tti);
+        return -1;
+    } else {
+        // Return total supply converted from raw
+        let totalSupply : number = parseInt(tokenInfo.totalSupply);
+        let decimals : number = parseInt(tokenInfo.decimals);
+        return convertRaw(totalSupply, decimals);
+    }
+}
+
+// @deprecated Use new function which uses Not Thomiz's endpoint
+// Get circulating supply for tti. Need to provide dev wallet address.
+// Circulating supply = total supply - dev wallet balance
+export async function _getCirculatingSupply(tti: string, devWallet: string )  {
+    console.log("Calculating circulating supply for: " + tti);
+    try {
+        // Get token info for specified tti
+        console.log("Retrieving token info for " + tti)
+        // Get total supply for token ID
+        let totalSupply : number = await getTotalSupply(tti).catch((res: RPCResponse) => {
+            let errorMsg = "Could not retrieve total supply for " + tti;
+            logger.error(errorMsg);
+            console.log(errorMsg, res);
+            throw res.error;
+        });
+        console.log("Total supply for " + tti + " is " + totalSupply);
+        // Get balance of devWallet
+        let devWalletBalance : number = await getAccountBalance(devWallet, tti).catch((res: RPCResponse) => {
+            let errorMsg = "Could not retrieve account balance for " + devWallet + " token " + tti + " : " + res.error.message;
+            logger.error(errorMsg);
+            console.log(errorMsg);
+            throw res.error;
+        });
+        console.log("Dev wallet balance for " + devWallet + " is " + devWalletBalance);
+        // ******************************************* REMOVE LATER ********************************
+        // Get balance of tempWallet
+        let tempWalletBalance : number = await getAccountBalance(tempWallet, tti).catch((res: RPCResponse) => {
+            let errorMsg = "Could not retrieve account balance for " + tempWallet + " token " + tti + " : " + res.error.message;
+            logger.error(errorMsg);
+            console.log(errorMsg);
+            throw res.error;
+        });
+        console.log("Temp wallet balance for " + tempWallet + " is " + tempWalletBalance);
+        // Return circulating supply = total supply - dev wallet
+        return totalSupply - devWalletBalance - tempWalletBalance;
+    } catch(error) {
+        const errorMsg = "Error getting circulating supply for " + devWallet + " token " + tti + " : " + error;
+        logger.error(errorMsg);
+        console.error(errorMsg);
+        throw error;
+    }
 }

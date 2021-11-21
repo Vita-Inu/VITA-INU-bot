@@ -100,7 +100,7 @@ const updateCirculatingMarketCap = async () => {
 const updateCirculatingSupply = async () => {
 	console.log("In update circulating supply");
 	// Get circulating supply for token ID
-	let circulatingSupply : number = await getCirculatingSupply(tokenID,devWallet).catch((res: RPCResponse) => {
+	let circulatingSupply : number = await getCirculatingSupply(tokenID).catch((res: RPCResponse) => {
 		let errorMsg = "Could not retrieve circulating supply for " + tokenID;
 		console.log(errorMsg, res);
 		throw res.error;
