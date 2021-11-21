@@ -11,7 +11,7 @@
     "clean:node": "rm -rf node_modules",
     "clean": "npm run clean:dist && npm run clean:node",
     "start": "npm run start:dev",
-    "start:prod": "tsc && pm2 start dist/index.js",
+    "start:prod": "tsc && pm2 start dist/index.js --name \"VinuCirculatingSupply\" ",
     "start:dev": "tsc && node dist/index.js"
   },
   "dependencies": {
