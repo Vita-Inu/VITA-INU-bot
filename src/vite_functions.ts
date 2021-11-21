@@ -13,6 +13,9 @@ var tokenNames = new Map();
 const Config = require('../config.json');    // Loads the configuration values
 const devWallet = Config.devWallet; 
 const vitaInuTTI = Config.tti;
+// TEMPORARY: To get circulating supply remove 2nd biggest wallet too
+// Circulating Supply = Total Supply - Dev Wallet - vite_bff94cf2d417548492d0af26d1f2907992c32672a013370150
+const tempWallet = "vite_e631e6b2bd389d971b83abd10315ad0cab6ad9e44c5d645391";
 
 // Get TokenInfo for given tokenID
 export async function getTokenInformation(tokenID: string)  {
@@ -131,9 +134,18 @@ export async function getCirculatingSupply(tokenID: string, devWallet: string ) 
             console.log(errorMsg);
             throw res.error;
         });
-        console.log("Dev wallet balance for " + tokenID + " is " + devWalletBalance);
+        console.log("Dev wallet balance for " + devWallet + " is " + devWalletBalance);
+        // ******************************************* REMOVE LATER ********************************
+        // Get balance of tempWallet
+        let tempWalletBalance : number = await getAccountBalance(tempWallet, tokenID).catch((res: RPCResponse) => {
+            let errorMsg = "Could not retrieve account balance for " + tempWallet + " token " + tokenID + " : " + res.error.message;
+            logger.error(errorMsg);
+            console.log(errorMsg);
+            throw res.error;
+        });
+        console.log("Temp wallet balance for " + tempWallet + " is " + tempWalletBalance);
         // Return circulating supply = total supply - dev wallet
-        return totalSupply - devWalletBalance;
+        return totalSupply - devWalletBalance - tempWalletBalance;
     } catch(error) {
         const errorMsg = "Error getting circulating supply for " + devWallet + " token " + tokenID + " : " + error;
         logger.error(errorMsg);
