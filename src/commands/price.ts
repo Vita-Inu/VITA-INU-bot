@@ -39,14 +39,13 @@ module.exports = {
 
 const showPrice = async (message, tokenID : string) => {
   // Look up price for tokenID
-  let price : number = await getTokenPrice(tokenID).catch((res: RPCResponse) => {
+  let price  = await getTokenPrice(tokenID).catch((res: RPCResponse) => {
     let errorMsg = "Could not get price for " + tokenID;
     logger.error(errorMsg);
     console.log(errorMsg, res);
     throw res.error;
   });
   // Send to chat
-  let chatMsg : string = "Price of " + tokenID + " is " + 
-    price.toLocaleString('en-GB', {minimumFractionDigits: 2});
+  let chatMsg : string = "Price of " + tokenID + " is " + price;
   message.channel.send(chatMsg);
 }

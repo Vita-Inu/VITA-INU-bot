@@ -164,7 +164,7 @@ export async function getTotalMarketCap(tokenID: string)  {
 
 // Circulating Market Cap = Circulating Supply x Price
 export async function getCirculatingMarketCap(tokenID: string)  {
-    let circulatingSupply : number = await getCirculatingSupply(tokenID,devWallet)
+    let circulatingSupply = await getCirculatingSupply(tokenID,devWallet)
         .catch((res: RPCResponse) => {
             let errorMsg = "Could not get total supply for  " + tokenID;
             logger.error(errorMsg);
@@ -177,45 +177,38 @@ export async function getCirculatingMarketCap(tokenID: string)  {
         console.log(errorMsg, res);
         throw res.error;
     });
-    let circulatingMarketCap : number = circulatingSupply * price;
+    try {
+    let circulatingMarketCap = circulatingSupply * price;
     console.log("Circulating market cap for " + tokenID + " is " + circulatingMarketCap);
     return circulatingMarketCap;
+    } catch(error) {
+        console.error(error);
+    }
 }
 
-export async function getTokenPrice(tti: string)  {
+export async function getTokenPrice(tti: string) : Promise<number> {
     // Form url to get price
     const priceUrl = "https://api.vitex.net/api/v2/exchange-rate?tokenSymbols=" + tti;
-    console.log("Fetching " + priceUrl)
-    let usdPrice = -1;
-    fetch(priceUrl)
+    return fetch(priceUrl)
         .then(response => {
             if (!response.ok) {
-                console.log("Response not OK : " + response.status);
                 throw new Error("HTTP error " + response.status);
             }
-            return -1;
+            return response.json();
         })
         .then(json => {
-            console.log("Fetch " + priceUrl + " Response Code : " + json.code + " MSG: " + json.msg);
-            if(json.code == 0) {
-                // Parse USD out of JSON
-                console.log("JSON data length : " + json.data.length);
-                if(json.data.length >= 1) {
-                    let data = json.data[0];
-                    console.log("USD Rate of :" + data.usdRate);
-                    usdPrice = data.usdRate;
-                } else {
-                    console.log("Could not find price data for " + tti);
-                }
+            if(json.code != 0) {
+                throw new Error("Invalid Code " + json.code + " Msg: " + json.msg);
+            }
+            // Parse USD out of JSON
+            if(json.data.length >= 1) {
+                let data = json.data[0];
+                return data.usdRate;
             } else {
-                let errorMsg = "Fetch " + priceUrl + " Response Code : " + json.code + " MSG: " + json.msg;
-                logger.error(errorMsg);
-                console.log(errorMsg);
-            } 
-            return usdPrice;
-        })
+                throw new Error("Could not find price data for " + tti);
+            }
+        }) 
         .catch(function (error) {
             console.log(error);
-            return -1;
         })
 }
