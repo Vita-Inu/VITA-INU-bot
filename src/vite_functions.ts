@@ -128,7 +128,7 @@ export async function getCirculatingSupply(tti: string, devWallet: string )  {
             console.log(errorMsg, res);
             throw res.error;
         });
-        console.log("Circulating supply for " + tti + " is " + totalSupply);
+        console.log("Total supply for " + tti + " is " + totalSupply);
         // Get balance of devWallet
         let devWalletBalance : number = await getAccountBalance(devWallet, tti).catch((res: RPCResponse) => {
             let errorMsg = "Could not retrieve account balance for " + devWallet + " token " + tti + " : " + res.error.message;
@@ -166,12 +166,14 @@ export async function getTotalMarketCap(tti: string)  {
             console.log(errorMsg, res);
             throw res.error;
         });
+    console.log("Total supply of " + tti + " : " + totalSupply);
     let price : number = await getTokenPriceByTTI(tti).catch((res: RPCResponse) => {
         let errorMsg = "Could not get price for " + tti;
         logger.error(errorMsg);
         console.log(errorMsg, res);
         throw res.error;
     });
+    console.log("Price of " + tti + " : " + price);
     let totalMarketCap : number = totalSupply * price;
     console.log("Total market cap for " + tti + " is " + totalMarketCap);
     return totalMarketCap;
@@ -194,6 +196,7 @@ export async function getCirculatingMarketCap(tti: string)  {
         console.log(errorMsg, res);
         throw res.error;
     });
+    console.log("Price of " + tti + " : " + price);
     try {
         let circulatingMarketCap = circulatingSupply * price;
         console.log("Circulating market cap for " + tti + " is " + circulatingMarketCap);
