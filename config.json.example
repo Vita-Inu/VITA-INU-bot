@@ -1,5 +1,6 @@
 {
 	"token": "PUT DISCORD TOKEN HERE",
+	"whichFunction" : "WHICH VALUE TO WATCH i.e. circulatingSupply",
 	"interval" : 10000,
 	"prefix": "vinu!",
 	"viteNode" : "https://node.vite.net/gvite",

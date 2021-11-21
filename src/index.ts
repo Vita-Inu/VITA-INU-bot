@@ -2,7 +2,7 @@ import { HTTP_RPC } from '@vite/vitejs-http';
 import { WS_RPC } from '@vite/vitejs-ws';
 import { ViteAPI } from '@vite/vitejs';
 import { RPCResponse} from '@vite/vitejs/distSrc/utils/type';
-import { getCirculatingSupply, getTotalSupply } from './vite_functions';
+import { getCirculatingMarketCap, getCirculatingSupply, getTotalMarketCap, getTotalSupply } from './vite_functions';
 import { convertToBorks } from './common';
 
 const fs = require('fs');                   // Loads the Filesystem library
@@ -19,6 +19,7 @@ const tokenID = Config.tti;	// TTI of token we're watching
 const updateInverval = Config.interval;	// How often to update circulating supply (ms)
 const devWallet = Config.devWallet; 
 const viteNode = Config.viteNode;
+const whichFunction = Config.whichFunction;
 
 // Determine whether to set up HTTP or WS
 var provider;
@@ -45,12 +46,59 @@ client.on('ready', () => {
         " with prefix " + client.botConfig.prefix);
 });
 
+const updateFunctions = {
+  circulatingSupply: () => updateCirculatingSupply(),
+  totalMarketCap: () => updateTotalMarketCap(),
+	circulatingMarketCap: () => updateCirculatingMarketCap()
+}
+
+const callFunction = name => updateFunctions[name]()
+
 // Call update circuling supply every updateInterval ms
 setInterval(async () => {
-	await updateCirculatingSupply();
+	await callFunction(whichFunction);
 }, updateInverval);
 
+const updateTotalMarketCap = async () => {
+	console.log("In update total market cap");
+	// Get total market cap for tti
+	let totalMarketCap : number = await getTotalMarketCap(tokenID).catch((res: RPCResponse) => {
+		let errorMsg = "Could not retrieve circulating supply for " + tokenID;
+		console.log(errorMsg, res);
+		throw res.error;
+	});
+	// If over 1 trillion convert to teraborks
+	let totalMarketCapStr = totalMarketCap.toLocaleString('en-GB', {minimumFractionDigits: 2}); 
+	if(totalMarketCap > 1e9) {
+		totalMarketCapStr = convertToBorks(totalMarketCap);
+	} 
+	console.log("Updating status to \"" + totalMarketCapStr + "\"");
+	// Set the client user's presence
+	client.user.setPresence({ activity: { name: totalMarketCapStr, type: 'WATCHING' }, status: "online" })
+	.catch(console.error);
+}
+
+const updateCirculatingMarketCap = async () => {
+	console.log("In update circulating market cap");
+	// Get circulating market cap for tti
+	let circulatingMarketCap : number = await getCirculatingMarketCap(tokenID).catch((res: RPCResponse) => {
+		let errorMsg = "Could not retrieve circulating supply for " + tokenID;
+		console.log(errorMsg, res);
+		throw res.error;
+	});
+	// If over 1 trillion convert to teraborks
+	let circulatingMarketCapStr = circulatingMarketCap.toLocaleString('en-GB', {minimumFractionDigits: 2}); 
+	if(circulatingMarketCap > 1e9) {
+		circulatingMarketCapStr = convertToBorks(circulatingMarketCap);
+	} 
+	console.log("Updating status to \"" + circulatingMarketCapStr + "\"");
+	// Set the client user's presence
+	client.user.setPresence({ activity: { name: circulatingMarketCapStr, type: 'WATCHING' }, status: "online" })
+	.catch(console.error);
+}
+
 const updateCirculatingSupply = async () => {
+	console.log("In update circulating supply");
 	// Get circulating supply for token ID
 	let circulatingSupply : number = await getCirculatingSupply(tokenID,devWallet).catch((res: RPCResponse) => {
 		let errorMsg = "Could not retrieve circulating supply for " + tokenID;
