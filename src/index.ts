@@ -115,7 +115,7 @@ const updateCirculatingSupply = async () => {
   // Might need to look into special lib cuz JS sucks at floating points
   let percentage : number = ( circulatingSupply / totalSupply ) * 100;
 	// If over 1 trillion convert to teraborks
-	let circulatingSupplyStr = circulatingSupply.toLocaleString('en-GB', {minimumFractionDigits: 2}); 
+	let circulatingSupplyStr = circulatingSupply.toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2}); 
 	if(circulatingSupply > 1e9) {
 		circulatingSupplyStr = convertToBorks(circulatingSupply);
 	} 

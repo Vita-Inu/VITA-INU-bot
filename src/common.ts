@@ -64,7 +64,7 @@ export const convertToBorks = (amount : number) : string => {
     }
     // Show 2 decimals for coefficient
     //console.log("co: ", co);
-    coString = co.toLocaleString('en-GB', {minimumFractionDigits: 4})
+    coString = co.toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})
     //console.log("after locale co: ", coString);
     returnString = coString + prefix;
     return returnString;

@@ -211,7 +211,7 @@ export async function getCirculatingSupply(tti: string) : Promise<number> {
 export async function getTotalSupply(tti: string) : Promise<number> {
     // Form URL
     const apiUrl = "https://vite-api.thomiz.dev/supply/circulating/" + tti;
-    console.log("Fetching total supply datafrom " + apiUrl);
+    console.log("Fetching total supply data from " + apiUrl);
     return fetch(apiUrl)
         .then(response => {
             if (!response.ok) {
